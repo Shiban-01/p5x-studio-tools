@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P5X Studio · Tools</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand logo">
+      <div class="logo-icon"></div>
+      <div><b>P5X Studio</b><span data-t="web_brand_sub">Tools</span></div>
+    </div>
+    <nav id="nav">
+      <button data-p="bundles" aria-current="true"><span class="ico">◆</span><span data-t="web_nav_bundles">Bundles</span></button>
+      <button data-p="inspector"><span class="ico">▤</span><span data-t="web_nav_inspector">Inspector</span></button>
+      <button data-p="resources"><span class="ico">⌕</span><span data-t="web_nav_resources">Resources</span></button>
+      <button data-p="textures"><span class="ico">▣</span><span data-t="web_nav_textures">Textures</span></button>
+      <button data-p="media"><span class="ico">♪</span><span data-t="web_nav_media">Video &amp; audio</span></button>
+      <button data-p="bulk"><span class="ico">⧉</span><span data-t="web_bulk_tab">Bulk textures</span><span class="badge">2.4k</span></button>
+      <button data-p="bustups"><span class="ico">☻</span><span data-t="web_bust_tab">Bust-ups</span><span class="badge">266</span></button>
+    </nav>
+    <button class="deps-abrir" id="deps-open"><span class="ico">⤓</span><span data-t="web_deps_btn">Dependencies</span></button>
+
+    <button class="settings-btn" data-p="settings" style="display:flex;align-items:center;gap:6px;margin:4px 8px;padding:6px 10px;background:var(--accent-pale);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-family:Nunito,sans-serif;font-size:10px;font-weight:700;color:var(--text2);transition:all .2s"><span class="ico">⚙</span><span data-t="web_nav_settings">Settings</span></button>
+    <div class="foot" id="foot-index" data-t="web_foot_index">—</div>
+  </aside>
+
+  <main>
+    <!-- ================================================= EXPLORADOR -->
+    <section class="pantalla activa" id="p-bundles">
+      <div class="head">
+        <h1 data-t="web_explore_title">Explore the game's bundles</h1>
+        <p data-t="web_explore_sub">Search by name, filter by type, and read what's inside without opening anything.</p>
+      </div>
+      <div class="search"><span class="mag">⌕</span>
+        <input id="q" autocomplete="off" placeholder="part_l_normal, shared_, scn_hougewai…">
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="meta"><h2 data-t="web_results">Results</h2><span id="count"></span>
+        <span class="novedades">
+          <button id="btn-solo-nuevos" class="chip" aria-pressed="false" data-t="web_new_only">Only new</button>
+          <button id="btn-marcar-vistos" class="chip" data-t="web_new_mark">Mark as seen</button>
+        </span>
+      </div>
+      <div class="list" id="list"></div>
+
+      <section class="detail" id="detail" hidden>
+        <div class="top">
+          <div><h3 id="d-name"></h3><div class="path" id="d-path"></div></div>
+          <button class="close" id="d-close">×</button>
+        </div>
+        <div class="facts">
+          <div><b id="d-mesh">—</b><span data-t="web_d_meshes">Meshes</span></div>
+          <div><b id="d-tex">—</b><span data-t="web_d_textures">Textures</span></div>
+          <div><b id="d-size">—</b><span data-t="web_d_size">Size</span></div>
+          <div><b id="d-type">—</b><span data-t="web_d_type">Type</span></div>
+        </div>
+        <div class="assets">
+          <h4 data-t="web_d_contents">Contents</h4>
+          <ul id="d-assets"><li class="vacio" data-t="web_insp_empty">—</li></ul>
+        </div>
+        <div class="actions">
+          <button class="btn p" id="d-open" data-t="web_d_open">Open with the engine</button>
+          <button class="btn s" id="d-extract" data-t="web_d_extract">Extract this bundle</button>
+          <button class="btn s" id="d-reveal" data-t="web_d_reveal">Reveal in folder</button>
+        </div>
+      </section>
+      <p class="note" id="note-bundles" data-t="web_note">—</p>
+    </section>
+
+    <!-- ================================================= INSPECTOR -->
+    <section class="pantalla" id="p-inspector">
+      <div class="head">
+        <h1 data-t="web_insp_title">Inspect a bundle</h1>
+        <p data-t="web_insp_sub">Open a bundle with the engine and see what resources it holds.</p>
+      </div>
+      <div class="barra">
+        <input type="text" id="insp-path" placeholder="110/shared_....bundle">
+        <button class="btn s" id="insp-choose" data-t="web_insp_choose">Choose file…</button>
+        <button class="btn p" id="insp-open" data-t="web_insp_open">Open with the engine</button>
+      </div>
+      <div class="estado" id="insp-estado"></div>
+      <div class="tabla-wrap"><table class="tabla" id="insp-tabla" hidden>
+        <thead><tr>
+          <th data-t="web_col_name">Name</th><th data-t="web_col_type">Type</th>
+          <th data-t="web_col_container">Container</th><th data-t="web_col_pathid">PathID</th>
+          <th data-t="web_col_size">Size</th>
+        </tr></thead><tbody id="insp-body"></tbody>
+      </table></div>
+      <div class="actions">
+        <button class="btn p" id="insp-export" data-t="web_insp_export">Export selected</button>
+        <button class="btn s" id="insp-export-all" data-t="web_insp_export_all">Export all</button>
+      </div>
+      <p class="note" data-t="web_note">—</p>
+    </section>
+
+    <!-- ================================================= BUSCADOR -->
+    <section class="pantalla" id="p-resources">
+      <div class="head">
+        <h1 data-t="web_res_title">Resource search</h1>
+        <p data-t="web_res_sub">Search a mesh or texture by name across the WHOLE game.</p>
+      </div>
+      <div class="barra">
+        <input type="text" id="res-q" placeholder="mesh or texture name…" disabled>
+        <button class="btn s" id="res-build" data-t="web_res_build">Build index</button>
+        <button class="btn s" id="res-cancel" data-t="web_res_cancel" disabled>Cancel</button>
+      </div>
+      <div class="estado" id="res-estado"></div>
+      <div class="prog" id="res-prog" hidden><i id="res-prog-i"></i></div>
+      <div class="tabla-wrap" style="margin-top:12px"><table class="tabla" id="res-tabla" hidden>
+        <thead><tr>
+          <th data-t="web_col_name">Name</th><th data-t="web_col_type">Type</th><th data-t="web_col_bundle">Bundle</th>
+        </tr></thead><tbody id="res-body"></tbody>
+      </table></div>
+      <p class="note" data-t="web_note">—</p>
+    </section>
+
+    <!-- ================================================= TEXTURAS -->
+    <section class="pantalla" id="p-textures">
+      <div class="head">
+        <h1 data-t="web_tex_title">Texture viewer</h1>
+        <p data-t="web_tex_sub">Browse, search and preview extracted textures.</p>
+      </div>
+
+      <!-- Barra de acciones -->
+      <div class="barra">
+        <label data-t="web_tex_bundle">Bundle</label>
+        <input type="text" id="tex-bundle" placeholder="110/shared_....bundle">
+        <button class="btn s" id="tex-export" data-t="web_tex_export">Extract textures</button>
+        <button class="btn s" id="tex-choose" data-t="web_tex_choose">Choose folder…</button>
+        <button class="btn p" id="tex-scan" data-t="web_tex_scan">Find images</button>
+      </div>
+
+      <!-- Breadcrumb + búsqueda + info -->
+      <div class="tex-toolbar">
+        <div class="tex-breadcrumb" id="tex-breadcrumb">
+          <span class="bc-root" data-t="web_tex_root">Extracted</span>
+        </div>
+        <div class="tex-search">
+          <span class="mag">⌕</span>
+          <input id="tex-search" placeholder="Search textures…" autocomplete="off">
+        </div>
+        <div class="tex-info" id="tex-info">
+          <span id="tex-count">0 images</span>
+        </div>
+      </div>
+
+      <!-- Filtros rápidos -->
+      <div class="tex-filters" id="tex-filters">
+        <button class="chip active" data-f="all" data-t="web_tex_filter_all">All</button>
+        <button class="chip" data-f="png">PNG</button>
+        <button class="chip" data-f="jpg">JPG</button>
+        <button class="chip" data-f="large">Large &gt;500px</button>
+      </div>
+
+      <!-- Contenido: sidebar + galería + detalles -->
+      <div class="tex-layout">
+        <!-- Sidebar de carpetas -->
+        <div class="tex-sidebar">
+          <div class="tex-sidebar-title" data-t="web_tex_folders">Folders</div>
+          <div class="tex-folder-tree" id="tex-folder-tree">
+            <div class="folder-item active" data-path=""><span class="ficon">📂</span> <span data-t="web_tex_root">Extracted</span></div>
+            <div class="folder-item" data-path="textures"><span class="ficon">📁</span> textures</div>
+            <div class="folder-item" data-path="textures/UI"><span class="ficon">📁</span> UI</div>
+            <div class="folder-item" data-path="portraits"><span class="ficon">📁</span> portraits</div>
+            <div class="folder-item" data-path="bustups"><span class="ficon">📁</span> bustups</div>
+            <div class="folder-item" data-path="thumbnails"><span class="ficon">📁</span> thumbnails</div>
+          </div>
+        </div>
+
+        <!-- Galería -->
+        <div class="tex-main">
+          <div class="estado" id="tex-estado"></div>
+          <div class="galeria" id="tex-galeria"></div>
+          <div class="visor" id="tex-visor" hidden><img id="tex-img" alt=""></div>
+        </div>
+
+        <!-- Panel de detalles -->
+        <div class="tex-details" id="tex-details">
+          <div class="tex-details-title" data-t="web_tex_details">Details</div>
+          <div class="tex-details-empty" id="tex-details-empty" data-t="web_tex_select">Select an image</div>
+          <div class="tex-details-body" id="tex-details-body" hidden>
+            <img id="tex-details-img" src="" alt="">
+            <div class="tex-details-info">
+              <div class="tdi-row"><span data-t="web_tex_name">Name</span><b id="tex-details-name">—</b></div>
+              <div class="tdi-row"><span data-t="web_tex_size">Size</span><b id="tex-details-size">—</b></div>
+              <div class="tdi-row"><span data-t="web_tex_dims">Dimensions</span><b id="tex-details-dims">—</b></div>
+              <div class="tdi-row"><span data-t="web_tex_path">Path</span><b id="tex-details-path">—</b></div>
+            </div>
+            <div class="tex-details-actions">
+              <button class="btn s" id="tex-details-reveal" data-t="web_tex_reveal">Open folder</button>
+              <button class="btn s" id="tex-details-copy" data-t="web_tex_copy">Copy path</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="note" data-t="web_note">—</p>
+    </section>
+
+    <!-- ================================================= VIDEO Y AUDIO -->
+    <section class="pantalla" id="p-media">
+      <div class="head">
+        <h1 data-t="web_media_title">Video &amp; audio</h1>
+        <p data-t="web_media_sub">The client's videos and music.</p>
+      </div>
+      <div class="barra">
+        <span class="seg">
+          <button id="media-usm" aria-pressed="true" data-t="web_media_videos">Videos</button>
+          <button id="media-awb" aria-pressed="false" data-t="web_media_audios">Audio</button>
+        </span>
+        <button class="btn s" id="media-list" data-t="web_media_list">List</button>
+        <button class="btn p" id="media-extract" data-t="web_media_extract_video">Extract MP4</button>
+        <button class="btn s" id="media-out" data-t="web_media_open_out">Open output folder</button>
+      </div>
+      <div class="estado" id="media-estado"></div>
+      <div class="prog" id="media-prog" hidden><i id="media-prog-i"></i></div>
+      <div class="media-list" id="media-lista"></div>
+      <p class="note" id="media-legend" data-t="web_media_legend">—</p>
+    </section>
+
+    <!-- ================================================= TEXTURAS EN BLOQUE
+         Saca las texturas de todos los bundles y las ordena en Categoria/conjunto. La lista de
+         categorias sale del catalogo del juego (bundles exactos) y de los censos medidos (texturas
+         y peso estimados). La consola es de solo lectura, como la de dependencias. -->
+    <section class="pantalla" id="p-bulk">
+      <div class="head">
+        <h1 data-t="web_bulk_titulo">Bulk textures</h1>
+        <p data-t="web_bulk_ayuda">—</p>
+      </div>
+
+      <div class="bulk-dos">
+        <div>
+          <table class="bulk-tabla">
+            <thead>
+              <tr>
+                <th class="c"><button class="mini" id="bulk-todo" data-t="web_bulk_todo">All</button></th>
+                <th data-t="web_bulk_col_categoria">Category</th>
+                <th class="n" data-t="web_bulk_col_bundles">Bundles</th>
+                <th class="n" data-t="web_bulk_col_texturas">Textures</th>
+                <th class="n" data-t="web_bulk_col_peso">Approx. size</th>
+              </tr>
+            </thead>
+            <tbody id="bulk-categorias"></tbody>
+          </table>
+
+          <div class="campo">
+            <label for="bulk-filtro" data-t="web_bulk_filtro">Text filter</label>
+            <input id="bulk-filtro" autocomplete="off" placeholder="PC079, scn11, item…">
+            <span class="ayuda" data-t="web_bulk_filtro_ayuda">—</span>
+          </div>
+
+          <label class="check chk"><input type="checkbox" id="bulk-sprites" checked><div class="bx"></div><span data-t="web_bulk_sprites">—</span></label>
+          <label class="check chk"><input type="checkbox" id="bulk-tipo"><div class="bx"></div><span data-t="web_bulk_por_tipo">—</span></label>
+          <label class="check chk"><input type="checkbox" id="bulk-reanudar" checked><div class="bx"></div><span data-t="web_bulk_reanudar">—</span></label>
+
+          <div class="campo">
+            <label for="bulk-destino" data-t="web_bulk_destino">Destination folder</label>
+            <div class="barra">
+              <input id="bulk-destino" readonly>
+              <button class="btn s" id="bulk-elegir" data-t="web_bulk_elegir">Choose…</button>
+            </div>
+            <span class="ayuda" id="bulk-libre">—</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="estado" id="bulk-estimado">—</div>
+          <p class="aviso" data-t="web_bulk_aviso">—</p>
+          <div class="fila">
+            <button class="accion" id="bulk-empezar" data-t="web_bulk_empezar">Extract selected</button>
+            <button class="btn s" id="bulk-cancelar" data-t="web_bulk_cancelar">Cancel</button>
+            <button class="btn s" id="bulk-abrir" data-t="web_bulk_abrir">Open the folder</button>
+          </div>
+          <div class="prog" id="bulk-prog" hidden><i id="bulk-prog-i"></i></div>
+          <div class="estado" id="bulk-estado"></div>
+          <h4 data-t="web_bulk_consola">—</h4>
+          <pre id="bulk-consola" aria-readonly="true" tabindex="-1"></pre>
+          <p class="note" id="bulk-ya-hecho">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================= BUST-UPS
+         Los retratos del dialogo, montados capa a capa con las texturas del lote. La posicion de
+         cada parte se MIDE comparando pixeles (p5x_studio/bustups.py), asi que basta con la carpeta
+         de texturas: no hay que volver a mirar los bundles del juego. La lista de capas dice de
+         donde sale cada una y cuanto se desvia. -->
+    <section class="pantalla" id="p-bustups">
+      <div class="head">
+        <h1 data-t="web_bust_title">Bust-up viewer</h1>
+        <p data-t="web_bust_sub">—</p>
+      </div>
+
+      <!-- El visor no necesita el bulk entero: solo los retratos de dialogo. Este extracto saca los
+           bundles exactos que apunta el mapa (80) y se queda en unos 170 MB, en vez de 63 GB. -->
+      <div class="retr">
+        <div class="fila">
+          <b data-t="web_bust_retr_titulo">Portrait textures</b>
+          <button class="btn p" id="retr-sacar" data-t="web_bust_retr_boton">Extract portraits</button>
+          <button class="btn s" id="retr-cancelar" data-t="web_bust_retr_parar">Stop</button>
+          <button class="btn s" id="retr-abrir" title="Open folder">📂</button>
+        </div>
+        <div class="prog" id="retr-prog" hidden><i id="retr-prog-i"></i></div>
+        <div class="estado" id="retr-estado"></div>
+        <p class="note" id="retr-nota">—</p>
+      </div>
+
+      <div class="bust-dos">
+        <!-- Grid de bust-ups como cards -->
+        <div class="grid-wrap">
+          <div class="search"><span class="mag">⌕</span>
+            <input id="bust-q" autocomplete="off" placeholder="…">
+          </div>
+          <div class="grid-head"><span data-t="web_bust_tab">Bust-ups</span> · <span id="bust-n">…</span></div>
+          <div class="estado" id="bust-estado"></div>
+          <div class="list grid" id="bust-lista"></div>
+          <button class="btn s" id="bust-carpeta" data-t="web_bust_elegir">Choose folder…</button>
+        </div>
+
+        <!-- Visor -->
+        <div class="viewer">
+          <div class="bust-visor">
+            <img id="bust-img" alt="">
+            <span class="bust-vacio" id="bust-vacio">—</span>
+            <div class="stats">
+              <div class="stat"><b id="bust-stat-px">—</b> px</div>
+              <div class="stat"><b id="bust-stat-capas">—</b> <span data-t="web_bust_capas">Layers</span></div>
+              <div class="stat"><b id="bust-stat-expr">—</b> expr</div>
+            </div>
+            <div class="lbl">
+              <h3><em id="bust-nombre">—</em></h3>
+              <div class="meta">
+                <span id="bust-ropa">—</span><div class="dot"></div>
+                <span class="tag-inline base" id="bust-tag">base</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <!-- Expresiones en chips (el id #bust-expresion vive en un input oculto) -->
+            <div class="expr-row">
+              <label class="expr-lbl" for="bust-expresion" data-t="web_bust_expression">Expression</label>
+              <div class="expr-chips" id="bust-expr-chips"></div>
+              <input type="hidden" id="bust-expresion">
+            </div>
+
+            <!-- Shader -->
+            <div class="shader-row">
+              <div class="sl-g"><div class="sl-h">Brillo <span id="sl-brillo-v">1.00</span></div><input type="range" id="sl-brillo" min="0" max="200" value="100"></div>
+              <div class="sl-g"><div class="sl-h">Saturación <span id="sl-sat-v">1.00</span></div><input type="range" id="sl-sat" min="0" max="200" value="100"></div>
+              <div class="sl-g"><div class="sl-h">Contraste <span id="sl-con-v">1.00</span></div><input type="range" id="sl-con" min="0" max="200" value="100"></div>
+              <div class="sl-g"><div class="sl-h">Shader Mix <span id="sl-mix-v">100%</span></div><input type="range" id="sl-mix" min="0" max="100" value="100"></div>
+            </div>
+
+            <!-- Checkboxes -->
+            <div class="check-row">
+              <label class="chk"><input type="checkbox" id="bust-shader"><div class="bx"></div><span data-t="web_bust_shader">Shader</span></label>
+              <label class="chk"><input type="checkbox" id="bust-tinte" checked><div class="bx"></div><span data-t="web_bust_tinte">Tinte</span></label>
+              <label class="chk"><input type="checkbox" id="bust-fondo"><div class="bx"></div><span>Fondo</span></label>
+            </div>
+
+            <!-- Acciones -->
+            <div class="action-row">
+              <button class="btn s" id="bust-revelar" data-t="web_bust_reveal">Show in folder</button>
+              <button class="btn p" id="bust-exportar" data-t="web_bust_export">Export PNG</button>
+            </div>
+
+            <div class="estado" id="bust-info"></div>
+            <h4 data-t="web_bust_capas">Layers</h4>
+            <ul class="bust-capas" id="bust-capas"></ul>
+            <p class="note" id="bust-nota">—</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ SETTINGS -->
+    <section class="pantalla" id="p-settings">
+      <div class="head">
+        <h1 data-t="web_settings_title">Settings</h1>
+        <p data-t="web_settings_sub">Customize the app theme, language, and game paths.</p>
+      </div>
+
+      <!-- Tema -->
+      <div class="settings-card">
+        <h3 data-t="web_theme_label">Theme</h3>
+        <p class="settings-desc" data-t="web_theme_desc">Choose the color palette for the interface.</p>
+        <div class="theme-grid" id="theme-grid">
+          <div class="tdot on" data-t="pink" onclick="setTheme('pink',this)" style="background:#E91E63" title="Pink"></div>
+          <div class="tdot" data-t="white" onclick="setTheme('white',this)" style="background:#78909C" title="White"></div>
+          <div class="tdot" data-t="black" onclick="setTheme('black',this)" style="background:#1A1A2E" title="Black"></div>
+          <div class="tdot" data-t="mint" onclick="setTheme('mint',this)" style="background:#43A047" title="Mint"></div>
+          <div class="tdot" data-t="coffee" onclick="setTheme('coffee',this)" style="background:#795548" title="Coffee"></div>
+          <div class="tdot" data-t="orange" onclick="setTheme('orange',this)" style="background:#F57C00" title="Orange"></div>
+          <div class="tdot" data-t="red" onclick="setTheme('red',this)" style="background:#D32F2F" title="Red"></div>
+          <div class="tdot" data-t="purple" onclick="setTheme('purple',this)" style="background:#8E24AA" title="Purple"></div>
+          <div class="tdot" data-t="blue" onclick="setTheme('blue',this)" style="background:#1976D2" title="Blue"></div>
+          <div class="tdot" data-t="yellow" onclick="setTheme('yellow',this)" style="background:#F9A825" title="Yellow"></div>
+        </div>
+      </div>
+
+      
+
+      <!-- Ruta del juego -->
+      <div class="settings-card">
+        <h3 data-t="web_settings_game_path">Game installation</h3>
+        <p class="settings-desc" data-t="web_settings_game_desc">The P5X game folder being scanned. If auto-detection fails or you have multiple installations, choose the correct one.</p>
+        <div class="barra">
+          <input type="text" id="settings-game-path" readonly value="C:\Program Files (x86)\Steam\steamapps\common\P5X">
+          <button class="btn s" id="settings-game-choose" data-t="web_settings_choose_game">Choose game folder…</button>
+          <button class="btn s" id="settings-game-detect" data-t="web_settings_detect">Auto-detect</button>
+        </div>
+        <div class="estado" id="settings-game-status">
+          <span style="color:var(--green)">●</span> <span data-t="web_settings_game_ok">Game detected — Steam (Global)</span>
+        </div>
+      </div>
+
+      <!-- Ruta de texturas -->
+      <div class="settings-card">
+        <h3 data-t="web_settings_tex_path">Texture extraction folder</h3>
+        <p class="settings-desc" data-t="web_settings_tex_desc">Where extracted portrait textures are stored. Change this if the tool cannot find your textures.</p>
+        <div class="barra">
+          <input type="text" id="settings-tex-path" readonly value="C:\Users\Lukas\Desktop\P5X Studio Tools\extracted\portraits">
+          <button class="btn s" id="settings-tex-choose" data-t="web_settings_choose_tex">Choose folder…</button>
+        </div>
+        <div class="estado" id="settings-tex-status">
+          <span style="color:var(--green)">●</span> <span data-t="web_settings_tex_ok">3,258 sprites found</span>
+        </div>
+      </div>
+
+      <!-- Ruta de salida -->
+      <div class="settings-card">
+        <h3 data-t="web_settings_out_path">Output folder</h3>
+        <p class="settings-desc" data-t="web_settings_out_desc">Where exported bust-ups and textures are saved.</p>
+        <div class="barra">
+          <input type="text" id="settings-out-path" readonly value="C:\Users\Lukas\Desktop\P5X Studio Tools\extracted\bustups">
+          <button class="btn s" id="settings-out-choose" data-t="web_settings_choose_out">Choose folder…</button>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="settings-card">
+        <h3 data-t="web_settings_about">About</h3>
+        <div class="settings-info">
+          <div class="settings-info-row">
+            <span data-t="web_settings_version">Version</span>
+            <b>0.0.2-beta</b>
+          </div>
+          <div class="settings-info-row">
+            <span data-t="web_settings_bundles">Bundles indexed</span>
+            <b id="settings-bundles-count">15,469</b>
+          </div>
+          <div class="settings-info-row">
+            <span data-t="web_settings_bustups">Bust-ups available</span>
+            <b>266</b>
+          </div>
+          <div class="settings-info-row">
+            <span data-t="web_settings_shaders">Shader profiles</span>
+            <b>216</b>
+          </div>
+          <div class="settings-info-row">
+            <span data-t="web_settings_thumbs">Thumbnails</span>
+            <b>156</b>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================================================================ DEPENDENCIAS
+     Ventana que baja las herramientas externas (motor, wannacri, vgmstream, ffmpeg) y deja ver el
+     progreso en una consola que NO se puede usar: no hay ningun campo donde escribir dentro. -->
+<div class="modal" id="deps-modal" hidden>
+  <div class="caja">
+    <header>
+      <h2 data-t="web_deps_title">Dependencies</h2>
+      <button class="x" id="deps-cerrar" data-t-aria="web_deps_cerrar" aria-label="close">✕</button>
+    </header>
+    <p class="peso" id="deps-peso">—</p>
+    <ul id="deps-lista"></ul>
+    <div class="fila">
+      <button class="accion" id="deps-bajar" data-t="web_deps_bajar">Download dependencies</button>
+      <span class="aviso" data-t="web_deps_solo_ver">This console is read-only: you can watch it, you can't type in it.</span>
+    </div>
+    <pre id="deps-consola" aria-readonly="true" tabindex="-1"></pre>
+  </div>
+</div>
+<script src="app.js"></script>
+<script>
+/* Decoracion sincronizada con app.js (app.js NO se toca):
+   - chips de expresion encima del #bust-expresion oculto
+   - el grid de bust-ups como cards (letra inicial + tag base/collab)
+   - stats flotantes y etiqueta del visor
+   - sliders de shader (filtro CSS sobre la vista previa) y fondo de transparencia */
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+
+  /* Personajes invitados del crossover (P5): el resto son personajes base del juego. */
+  var COLLAB = { joker: 1, caroline: 1, justine: 1 };
+
+  /* ---------- chips de expresion ---------- */
+  var exprIn = $("#bust-expresion"), exprWrap = $("#bust-expr-chips");
+  function pintarChipsExpr() {
+    if (!exprIn || !exprWrap) return;
+    var opts = Array.prototype.slice.call(exprIn.querySelectorAll("option"));
+    exprWrap.innerHTML = "";
+    opts.forEach(function (o) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "expr-b" + (o.hasAttribute("selected") ? " on" : "");
+      b.textContent = o.textContent;
+      b.onclick = function () {
+        exprIn.value = o.value;
+        Array.prototype.forEach.call(exprWrap.children, function (c) { c.classList.remove("on"); });
+        b.classList.add("on");
+        exprIn.dispatchEvent(new Event("change"));   // dispara el handler de app.js
+      };
+      exprWrap.appendChild(b);
+    });
+    exprWrap.classList.toggle("off", !!exprIn.disabled);
+  }
+  if (exprIn && window.MutationObserver) {
+    new MutationObserver(pintarChipsExpr).observe(exprIn, { childList: true });
+  }
+
+  /* ---------- cards del grid de bust-ups ---------- */
+  function updateViewer() {
+    var sel = document.querySelector('#bust-lista .row[aria-selected="true"]');
+    if (!sel) return;
+    var nombre = $("#bust-nombre"), ropa = $("#bust-ropa"), tag = $("#bust-tag");
+    if (nombre) nombre.textContent = sel.dataset.personaje || "—";
+    if (ropa) ropa.textContent = sel.dataset.ropa || "—";
+    var t = sel.querySelector(".tag");
+    if (tag && t) {
+      tag.textContent = t.textContent;
+      tag.className = "tag-inline " + (t.classList.contains("collab") ? "collab" : "base");
+    }
+    var ex = $("#bust-stat-expr"), cap = $("#bust-stat-capas");
+    if (ex) ex.textContent = sel.dataset.exprs || "—";
+    if (cap) cap.textContent = sel.dataset.capas || "—";
+  }
+
+  function enhanceCards() {
+    var cont = $("#bust-lista");
+    if (!cont) return;
+    var rows = cont.querySelectorAll(".row");
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      if (row.dataset.card) continue;
+      row.dataset.card = "1";
+      var b = row.querySelector(".name b"), s = row.querySelector(".name s");
+      var personaje = (b ? b.textContent : "").trim();
+      var esCollab = !!COLLAB[personaje.toLowerCase()];
+      var ks = row.querySelectorAll(".k");
+      row.dataset.personaje = personaje;
+      row.dataset.ropa = s ? s.textContent.trim() : "";
+      row.dataset.exprs = ks[0] ? ks[0].textContent.trim() : "—";
+      row.dataset.capas = ks[1] ? ((ks[1].textContent.match(/\d+/) || ["—"])[0]) : "—";
+      for (var k = ks.length - 1; k >= 0; k--) ks[k].remove();
+      var img = document.createElement("div");
+      img.className = "card-img";
+      img.textContent = (personaje.charAt(0) || "?").toUpperCase();
+      row.insertBefore(img, row.firstChild);
+      var name = row.querySelector(".name");
+      if (name) {
+        var info = document.createElement("div");
+        info.className = "card-info";
+        info.appendChild(name);
+        row.appendChild(info);
+      }
+      var tag = document.createElement("div");
+      tag.className = "tag " + (esCollab ? "collab" : "base");
+      tag.textContent = esCollab ? "collab" : "base";
+      row.appendChild(tag);
+    }
+    var n = $("#bust-n");
+    if (n) n.textContent = String(rows.length);
+    updateViewer();
+  }
+  var lista = $("#bust-lista");
+  if (lista && window.MutationObserver) {
+    new MutationObserver(enhanceCards).observe(lista, {
+      childList: true, subtree: true, attributes: true, attributeFilter: ["aria-selected"]
+    });
+  }
+
+  /* ---------- stats del visor (desde #bust-info) ---------- */
+  var info = $("#bust-info");
+  function parseInfo() {
+    if (!info) return;
+    var t = info.textContent || "";
+    var m = t.match(/(\d+)\s*[×x]\s*(\d+)/);
+    var px = $("#bust-stat-px"), capas = $("#bust-stat-capas");
+    if (px && m) px.textContent = m[1];
+    var c = t.match(/·\s*(\d+)/);
+    if (capas && c) capas.textContent = c[1];
+  }
+  if (info && window.MutationObserver) {
+    new MutationObserver(parseInfo).observe(info, { childList: true, characterData: true, subtree: true });
+  }
+
+  /* ---------- sliders de shader (filtro sobre la vista previa) ---------- */
+  function aplicarFiltro() {
+    var img = $("#bust-img");
+    var get = function (id) { var e = $(id); return e ? +e.value : 100; };
+    var br = get("#sl-brillo") / 100, sa = get("#sl-sat") / 100,
+        co = get("#sl-con") / 100, mx = get("#sl-mix") / 100;
+    var f = function (v) { return (1 + (v - 1) * mx).toFixed(2); };
+    if (img) img.style.filter = "brightness(" + f(br) + ") saturate(" + f(sa) + ") contrast(" + f(co) + ")";
+    var set = function (id, txt) { var e = $(id); if (e) e.textContent = txt; };
+    set("#sl-brillo-v", br.toFixed(2));
+    set("#sl-sat-v", sa.toFixed(2));
+    set("#sl-con-v", co.toFixed(2));
+    set("#sl-mix-v", Math.round(mx * 100) + "%");
+  }
+  ["#sl-brillo", "#sl-sat", "#sl-con", "#sl-mix"].forEach(function (id) {
+    var e = $(id);
+    if (e) e.addEventListener("input", aplicarFiltro);
+  });
+  aplicarFiltro();
+
+  /* ---------- fondo: cuadricula de transparencia ---------- */
+  var fondo = $("#bust-fondo");
+  if (fondo) fondo.addEventListener("change", function () {
+    var v = document.querySelector(".bust-visor");
+    if (v) v.classList.toggle("fondo-check", fondo.checked);
+  });
+
+  enhanceCards();
+  pintarChipsExpr();
+})();
+</script>
+</body>
+</html>

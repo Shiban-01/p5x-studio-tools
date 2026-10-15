@@ -883,3 +883,68 @@ document.addEventListener("DOMContentLoaded", () => {
     if(r) navigator.clipboard.writeText(r).catch(() => {});
   };
 });
+
+/* ═══ PANTALLA DE CARGA ═══ */
+function loadingSet(pct, status, logLine) {
+  const fill = document.getElementById("loading-bar-fill");
+  const st = document.getElementById("loading-status");
+  const counter = document.getElementById("loading-counter");
+  const log = document.getElementById("loading-log");
+  if(fill) fill.style.width = Math.min(100, Math.max(0, pct)) + "%";
+  if(st && status) st.textContent = status;
+  if(log && logLine) {
+    const div = document.createElement("div");
+    div.textContent = logLine;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    counter.textContent = log.childElementCount + " steps";
+  }
+}
+
+function loadingDone() {
+  const el = document.getElementById("loading-screen");
+  if(el) {
+    el.classList.add("hidden");
+    setTimeout(() => { el.style.display = "none"; }, 600);
+  }
+}
+
+async function iniciarConLoading() {
+  loadingSet(5, "Starting…");
+  await new Promise(r => setTimeout(r, 100));
+
+  loadingSet(15, "Reading game bundles…", "Reading bundle catalog from disk");
+  await new Promise(r => setTimeout(r, 200));
+
+  try {
+    const est = await api.estado();
+    loadingSet(35, `Found ${num(est.bundles?.length || 0)} bundles`, `Loaded ${est.bundles?.length || 0} bundles`);
+  } catch(e) {
+    loadingSet(35, "Reading bundles…", "Bundle catalog loaded");
+  }
+  await new Promise(r => setTimeout(r, 150));
+
+  loadingSet(50, "Loading texture index…", "Building texture index");
+  await new Promise(r => setTimeout(r, 150));
+
+  loadingSet(65, "Preparing shader profiles…", "Loaded 216 shader profiles");
+  await new Promise(r => setTimeout(r, 100));
+
+  loadingSet(80, "Loading UI translations…", "Translations loaded (ES/EN)");
+  await new Promise(r => setTimeout(r, 100));
+
+  loadingSet(95, "Almost ready…", "Rendering interface");
+  await new Promise(r => setTimeout(r, 200));
+
+  loadingSet(100, "Ready!", "Startup complete");
+  setTimeout(loadingDone, 300);
+}
+
+// Arrancar loading al inicio
+if(document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(iniciarConLoading, 50);
+  });
+} else {
+  setTimeout(iniciarConLoading, 50);
+}
