@@ -760,3 +760,126 @@ const EXPRESIONES_EN = {
 function traducirExpresion(exp) {
   return EXPRESIONES_EN[exp] || exp;
 }
+
+/* ═══ TEXTURE BROWSER ═══ */
+let texCarpetaActual = "";
+let texImagenes = [];
+let texFiltro = "all";
+let texSeleccionada = null;
+
+async function texNavegar(subcarpeta) {
+  texCarpetaActual = subcarpeta || "";
+  // Marcar carpeta activa en el sidebar
+  $$("#tex-folder-tree .folder-item").forEach(f =>
+    f.classList.toggle("active", (f.dataset.path || "") === texCarpetaActual));
+  // Actualizar breadcrumb
+  const bc = $("#tex-breadcrumb");
+  const partes = texCarpetaActual ? texCarpetaActual.split("/") : [];
+  bc.innerHTML = `<span class="bc-root" onclick="texNavegar('')">${esc(tr("web_tex_root"))}</span>` +
+    partes.map((p, i) => {
+      const ruta = partes.slice(0, i + 1).join("/");
+      const last = i === partes.length - 1;
+      return ` <span class="bc-sep">›</span> <span class="bc-item ${last ? "bc-current" : ""}" onclick="texNavegar('${esc(ruta)}')">${esc(p)}</span>`;
+    }).join("");
+  await texCargarImagenes();
+}
+
+async function texCargarImagenes() {
+  const est = $("#tex-estado");
+  est.textContent = tr("web_bust_working");
+  try {
+    const r = await api.texturas_listar(texCarpetaActual);
+    texImagenes = r.imagenes || [];
+    texPintarGaleria();
+  } catch(e) {
+    est.className = "estado bad";
+    est.textContent = String(e);
+  }
+}
+
+function texPintarGaleria() {
+  const q = ($("#tex-search").value || "").trim().toLowerCase();
+  let filtradas = texImagenes;
+  if(q) filtradas = filtradas.filter(i => (i.nombre || i.name || "").toLowerCase().includes(q));
+  if(texFiltro === "png") filtradas = filtradas.filter(i => /\.png$/i.test(i.nombre || i.name || ""));
+  else if(texFiltro === "jpg") filtradas = filtradas.filter(i => /\.jpe?g$/i.test(i.nombre || i.name || ""));
+  else if(texFiltro === "large") filtradas = filtradas.filter(i => (i.ancho || 0) > 500 || (i.alto || 0) > 500);
+
+  // Info
+  const total = filtradas.length;
+  const peso = filtradas.reduce((s, i) => s + (i.bytes || i.size || 0), 0);
+  $("#tex-count").textContent = `${total} · ${(peso/1024/1024).toFixed(1)} MB`;
+
+  // Galería
+  const g = $("#tex-galeria");
+  if(!filtradas.length) {
+    g.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text3);font-size:12px">${esc(tr("web_res_empty"))}</div>`;
+    return;
+  }
+  g.innerHTML = filtradas.slice(0, 500).map((i, idx) => {
+    const nombre = i.nombre || i.name || "";
+    const ruta = i.ruta || i.path || "";
+    return `<figure data-idx="${idx}" data-nombre="${esc(nombre)}" data-ruta="${esc(ruta)}" data-kb="${((i.bytes || i.size || 0)/1024).toFixed(0)}" data-ancho="${i.ancho || i.width || 0}" data-alto="${i.alto || i.height || 0}">
+      <img loading="lazy" src="file:///${esc(ruta).replace(/\/g, '/')}" onerror="this.style.opacity=0.2">
+      <figcaption class="tex-caption">${esc(nombre)}</figcaption>
+    </figure>`;
+  }).join("");
+
+  // Click en imagen
+  $$("#tex-galeria figure").forEach(f => f.onclick = () => texSeleccionar(f));
+  $("#tex-estado").className = "estado ok";
+  $("#tex-estado").textContent = fmt(tr("web_bust_n"), num(total));
+}
+
+function texSeleccionar(fig) {
+  $$("#tex-galeria figure").forEach(f => f.classList.remove("selected"));
+  fig.classList.add("selected");
+  const nombre = fig.dataset.nombre;
+  const ruta = fig.dataset.ruta;
+  const kb = fig.dataset.kb;
+  const ancho = fig.dataset.ancho;
+  const alto = fig.dataset.alto;
+  texSeleccionada = { nombre, ruta, kb, ancho, alto };
+
+  $("#tex-details-empty").hidden = true;
+  $("#tex-details-body").hidden = false;
+  $("#tex-details-img").src = `file:///${ruta.replace(/\/g, '/')}`;
+  $("#tex-details-name").textContent = nombre;
+  $("#tex-details-size").textContent = `${kb} KB`;
+  $("#tex-details-dims").textContent = `${ancho} × ${alto}`;
+  $("#tex-details-path").textContent = ruta;
+  $("#tex-details-path").title = ruta;
+  $("#tex-details-reveal").dataset.ruta = ruta;
+  $("#tex-details-copy").dataset.ruta = ruta;
+}
+
+// Eventos del texture browser
+document.addEventListener("DOMContentLoaded", () => {
+  // Navegación por carpetas
+  $$("#tex-folder-tree .folder-item").forEach(f =>
+    f.onclick = () => texNavegar(f.dataset.path || ""));
+
+  // Búsqueda
+  const busca = $("#tex-search");
+  if(busca) busca.addEventListener("input", () => texPintarGaleria());
+
+  // Filtros
+  $$("#tex-filters .chip").forEach(c => c.onclick = () => {
+    $$("#tex-filters .chip").forEach(x => x.classList.remove("active"));
+    c.classList.add("active");
+    texFiltro = c.dataset.f;
+    texPintarGaleria();
+  });
+
+  // Botones de detalles
+  const reveal = $("#tex-details-reveal");
+  if(reveal) reveal.onclick = () => {
+    const r = reveal.dataset.ruta;
+    if(r) api.revelar_fichero(r);
+  };
+  const copy = $("#tex-details-copy");
+  if(copy) copy.onclick = () => {
+    const r = copy.dataset.ruta;
+    if(r) navigator.clipboard.writeText(r).catch(() => {});
+  };
+});

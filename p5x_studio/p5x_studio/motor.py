@@ -478,3 +478,24 @@ def textos() -> dict:
         "idioma": "en",
         "en": {k: v for k, v in idiomas.EN.items() if k.startswith("web_")},
     }
+
+
+def texturas_listar(carpeta: str = "") -> dict:
+    """Las imagenes de una carpeta de extraccion, con tamano y dimensiones para el visor."""
+    from PIL import Image
+    from pathlib import Path
+    base = ajustes.carpeta_extraidas()
+    if carpeta:
+        base = Path(base) / carpeta
+    imagenes = []
+    for p in herramientas.imagenes_de(Path(base)):
+        info = {"ruta": str(p), "nombre": p.name, "bytes": 0, "ancho": 0, "alto": 0}
+        try:
+            info["bytes"] = p.stat().st_size
+            with Image.open(p) as img:
+                info["ancho"], info["alto"] = img.size
+        except Exception:
+            pass
+        imagenes.append(info)
+    return {"ok": True, "imagenes": imagenes, "n": len(imagenes),
+            "carpeta": str(base)}

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>P5X Studio Tools</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{--bg:#FFF0F5;--bg2:#FFF5F8;--card:#FFFFFF;--accent:#E91E63;--accent-dark:#C2185B;--accent-light:#FCE4EC;--accent-pale:#FDF2F6;--text:#4A1942;--text2:#8E6B88;--text3:#B89AB2;--border:#F8D7E3;--shadow:rgba(233,30,99,0.1);--shadow2:rgba(233,30,99,0.18);--green:#81C784;--blue:#90CAF9;--gold:#FFD54F}
+
+  body.theme-white{--bg:#F5F5F5;--bg2:#FAFAFA;--card:#FFFFFF;--accent:#78909C;--accent-dark:#455A64;--accent-light:#ECEFF1;--accent-pale:#F5F5F5;--text:#263238;--text2:#607D8B;--text3:#90A4AE;--border:#E0E0E0;--shadow:rgba(38,50,56,0.08);--shadow2:rgba(38,50,56,0.15)}
+  body.theme-black{--bg:#1A1A2E;--bg2:#16213E;--card:#0F3460;--accent:#E94560;--accent-dark:#C62828;--accent-light:#1A1A2E;--accent-pale:#16213E;--text:#FFFFFF;--text2:#B0BEC5;--text3:#78909C;--border:#26355A;--shadow:rgba(233,69,96,0.15);--shadow2:rgba(233,69,96,0.25)}
+  body.theme-mint{--bg:#E8F5E9;--bg2:#F1F8E9;--card:#FFFFFF;--accent:#43A047;--accent-dark:#2E7D32;--accent-light:#C8E6C9;--accent-pale:#E8F5E9;--text:#1B5E20;--text2:#4CAF50;--text3:#81C784;--border:#C8E6C9;--shadow:rgba(67,160,71,0.1);--shadow2:rgba(67,160,71,0.18)}
+  body.theme-coffee{--bg:#EFEBE9;--bg2:#FAF7F5;--card:#FFFFFF;--accent:#795548;--accent-dark:#4E342E;--accent-light:#D7CCC8;--accent-pale:#EFEBE9;--text:#3E2723;--text2:#6D4C41;--text3:#A1887F;--border:#D7CCC8;--shadow:rgba(121,85,72,0.1);--shadow2:rgba(121,85,72,0.18)}
+  body.theme-orange{--bg:#FFF3E0;--bg2:#FFF8E1;--card:#FFFFFF;--accent:#F57C00;--accent-dark:#E65100;--accent-light:#FFE0B2;--accent-pale:#FFF3E0;--text:#BF360C;--text2:#E65100;--text3:#FFB74D;--border:#FFE0B2;--shadow:rgba(245,124,0,0.1);--shadow2:rgba(245,124,0,0.18)}
+  body.theme-red{--bg:#FFEBEE;--bg2:#FFF5F5;--card:#FFFFFF;--accent:#D32F2F;--accent-dark:#B71C1C;--accent-light:#FFCDD2;--accent-pale:#FFEBEE;--text:#B71C1C;--text2:#E53935;--text3:#EF9A9A;--border:#FFCDD2;--shadow:rgba(211,47,47,0.1);--shadow2:rgba(211,47,47,0.18)}
+  body.theme-purple{--bg:#F3E5F5;--bg2:#FCF0FF;--card:#FFFFFF;--accent:#8E24AA;--accent-dark:#6A1B9A;--accent-light:#E1BEE7;--accent-pale:#F3E5F5;--text:#4A148C;--text2:#7B1FA2;--text3:#BA68C8;--border:#E1BEE7;--shadow:rgba(142,36,170,0.1);--shadow2:rgba(142,36,170,0.18)}
+  body.theme-blue{--bg:#E3F2FD;--bg2:#F0F7FF;--card:#FFFFFF;--accent:#1976D2;--accent-dark:#0D47A1;--accent-light:#BBDEFB;--accent-pale:#E3F2FD;--text:#0D47A1;--text2:#1976D2;--text3:#64B5F6;--border:#BBDEFB;--shadow:rgba(25,118,210,0.1);--shadow2:rgba(25,118,210,0.18)}
+  body.theme-yellow{--bg:#FFFDE7;--bg2:#FFF9C4;--card:#FFFFFF;--accent:#F9A825;--accent-dark:#F57F17;--accent-light:#FFF9C4;--accent-pale:#FFFDE7;--text:#F57F17;--text2:#FBC02D;--text3:#FFD54F;--border:#FFF9C4;--shadow:rgba(249,168,37,0.1);--shadow2:rgba(249,168,37,0.18)}
+  body.theme-teal{--bg:#E0F2F1;--bg2:#F1F8F7;--card:#FFFFFF;--accent:#00897B;--accent-dark:#00695C;--accent-light:#B2DFDB;--accent-pale:#E0F2F1;--text:#00695C;--text2:#00897B;--text3:#4DB6AC;--border:#B2DFDB;--shadow:rgba(0,137,123,0.1);--shadow2:rgba(0,137,123,0.18)}
+
+  body{
+    width:1200px;height:720px;overflow:hidden;
+    font-family:'Nunito','Quicksand',sans-serif;
+    background:var(--bg);color:var(--text);
+    display:flex;transition:all .3s;
+  }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar{
+    width:220px;min-width:220px;height:100%;
+    background:var(--card);border-right:1px solid var(--border);
+    display:flex;flex-direction:column;
+    box-shadow:2px 0 20px var(--shadow);z-index:10;transition:all .3s;
+  }
+
+  .logo{padding:18px 16px 12px;border-bottom:1px solid var(--border)}
+  .logo-icon{
+    width:40px;height:40px;margin-bottom:8px;
+    background:url('game_textures/icon_frame.png') center/contain no-repeat;
+    border-radius:10px;box-shadow:0 3px 10px var(--shadow2);
+  }
+  .logo h1{font-size:16px;font-weight:900;color:var(--accent-dark);line-height:1.2;letter-spacing:-0.3px}
+  .logo h1 span{color:var(--text)}
+
+  .nav{padding:8px 8px;display:flex;flex-direction:column;gap:1px}
+  .nav-i{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 10px;cursor:pointer;transition:all .2s;
+    font-size:11px;font-weight:700;color:var(--text2);
+    border-radius:7px;position:relative;
+  }
+  .nav-i:hover{background:var(--accent-pale);color:var(--accent-dark)}
+  .nav-i.on{background:var(--accent-light);color:var(--accent-dark);box-shadow:0 2px 8px var(--shadow)}
+  .nav-i.on::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--accent);border-radius:0 3px 3px 0}
+  .nav-icon{
+    width:28px;height:28px;border-radius:7px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;flex-shrink:0;
+    background:var(--accent-pale);border:1px solid var(--border);
+  }
+  .nav-i.on .nav-icon{background:var(--accent);color:#fff;box-shadow:0 2px 6px var(--shadow2);border-color:var(--accent)}
+  .nav-i .badge{
+    margin-left:auto;font-size:8px;font-weight:800;
+    padding:1px 6px;border-radius:8px;
+    background:var(--accent-pale);color:var(--accent-dark);
+  }
+  .nav-i.on .badge{background:var(--accent);color:#fff}
+
+  .sep{height:1px;background:var(--border);margin:4px 10px}
+
+  /* Config panel (hidden by default) */
+  .config-panel{
+    padding:10px 12px;display:none;flex-direction:column;gap:10px;
+  }
+  .config-panel.show{display:flex}
+  .config-label{
+    font-size:9px;font-weight:800;text-transform:uppercase;
+    letter-spacing:1.5px;color:var(--text3);
+  }
+  .theme-grid{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:5px;
+  }
+  .theme-dot{
+    width:100%;aspect-ratio:1;border-radius:8px;cursor:pointer;
+    border:2px solid transparent;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:800;color:#fff;
+  }
+  .theme-dot:hover{transform:scale(1.1);box-shadow:0 3px 10px var(--shadow2)}
+  .theme-dot.on{border-color:var(--text);transform:scale(1.1);box-shadow:0 3px 12px var(--shadow2)}
+  .theme-dot .check{opacity:0}
+  .theme-dot.on .check{opacity:1}
+  .theme-dot[data-t="pink"]{background:#E91E63}
+  .theme-dot[data-t="white"]{background:#78909C}
+  .theme-dot[data-t="black"]{background:#1A1A2E}
+  .theme-dot[data-t="mint"]{background:#43A047}
+  .theme-dot[data-t="coffee"]{background:#795548}
+  .theme-dot[data-t="orange"]{background:#F57C00}
+  .theme-dot[data-t="red"]{background:#D32F2F}
+  .theme-dot[data-t="purple"]{background:#8E24AA}
+  .theme-dot[data-t="blue"]{background:#1976D2}
+  .theme-dot[data-t="yellow"]{background:#F9A825}
+
+  /* Lang selector */
+  .lang-row{display:flex;gap:5px}
+  .lang-btn{
+    flex:1;padding:5px;border:2px solid var(--border);border-radius:6px;
+    background:var(--card);color:var(--text2);cursor:pointer;
+    font-family:'Nunito',sans-serif;font-size:10px;font-weight:700;
+    text-align:center;transition:all .2s;
+  }
+  .lang-btn:hover{border-color:var(--accent);color:var(--accent-dark)}
+  .lang-btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* Char list */
+  .char-section{flex:1;display:flex;flex-direction:column;min-height:0;padding:0 8px}
+  .char-label{
+    font-size:8px;font-weight:800;text-transform:uppercase;
+    letter-spacing:1.5px;color:var(--text3);margin:6px 4px 4px;
+  }
+  .char-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) transparent}
+  .char-list::-webkit-scrollbar{width:3px}
+  .char-list::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+  .char-i{
+    display:flex;align-items:center;gap:6px;
+    padding:5px 7px;cursor:pointer;transition:all .15s;
+    border-radius:5px;font-size:10px;font-weight:600;
+    color:var(--text2);margin-bottom:1px;
+  }
+  .char-i:hover{background:var(--accent-pale);color:var(--accent-dark)}
+  .char-i.on{background:var(--accent-light);color:var(--accent-dark);font-weight:700}
+  .char-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--accent);opacity:.35}
+  .char-i.on .char-dot{opacity:1}
+  .char-i .n{margin-left:auto;font-size:8px;color:var(--text3);font-weight:600}
+
+  .sidebar-footer{
+    padding:8px 12px;border-top:1px solid var(--border);
+    font-size:9px;font-weight:600;color:var(--text3);
+  }
+  .sidebar-footer .val{color:var(--accent-dark);font-weight:800;font-size:12px}
+
+  /* ═══ MAIN ═══ */
+  .main{flex:1;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;transition:all .3s}
+
+  .header{
+    padding:14px 20px 10px;background:var(--card);
+    border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .header h2{font-size:18px;font-weight:900;color:var(--text);letter-spacing:-0.3px}
+  .header h2 em{
+    font-style:normal;
+    background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .header .sub{font-size:10px;color:var(--text2);font-weight:600;margin-top:1px}
+  .header-actions{display:flex;gap:6px}
+
+  .btn{
+    padding:8px 14px;border:none;cursor:pointer;
+    font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;
+    letter-spacing:0.3px;border-radius:7px;
+    transition:all .2s;display:flex;align-items:center;gap:5px;
+  }
+  .btn-pri{background:var(--accent);color:#fff;box-shadow:0 3px 10px var(--shadow2)}
+  .btn-pri:hover{transform:translateY(-1px);box-shadow:0 5px 14px var(--shadow2)}
+  .btn-out{background:var(--card);color:var(--accent-dark);border:2px solid var(--border)}
+  .btn-out:hover{border-color:var(--accent);background:var(--accent-pale)}
+  .btn-sm{padding:6px 12px;font-size:9px}
+
+  /* ═══ CONTENT ═══ */
+  .content{flex:1;display:flex;gap:12px;padding:12px 20px;min-height:0;overflow:hidden}
+
+  .grid-wrap{
+    width:250px;display:flex;flex-direction:column;
+    background:var(--card);border-radius:12px;
+    border:1px solid var(--border);box-shadow:0 2px 10px var(--shadow);overflow:hidden;
+    transition:all .3s;
+  }
+  .grid-head{
+    padding:8px 10px 5px;font-size:9px;font-weight:800;
+    text-transform:uppercase;letter-spacing:1px;color:var(--text3);
+    border-bottom:1px solid var(--border);
+  }
+  .grid{
+    flex:1;overflow-y:auto;padding:6px;
+    display:grid;grid-template-columns:repeat(2,1fr);gap:5px;
+    align-content:start;
+    scrollbar-width:thin;scrollbar-color:var(--accent) transparent;
+  }
+  .grid::-webkit-scrollbar{width:3px}
+  .grid::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+
+  .card{
+    border-radius:8px;overflow:hidden;cursor:pointer;
+    background:var(--accent-pale);border:2px solid transparent;
+    transition:all .25s;position:relative;
+  }
+  .card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 5px 12px var(--shadow)}
+  .card.on{border-color:var(--accent-dark);box-shadow:0 4px 12px var(--shadow2);background:var(--accent-light)}
+  .card-img{
+    aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;
+    font-family:'Nunito',sans-serif;font-size:28px;font-weight:900;
+    color:var(--accent);opacity:.2;
+  }
+  .card-info{padding:4px 4px 6px;text-align:center}
+  .card-info .name{font-size:9px;font-weight:800;color:var(--text);text-transform:capitalize}
+  .card-info .ropa{font-size:7px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px}
+  .card .tag{
+    position:absolute;top:4px;right:4px;
+    font-size:6px;font-weight:800;padding:1px 4px;border-radius:5px;
+    text-transform:uppercase;background:var(--accent);color:#fff;
+  }
+  .card .tag.collab{background:var(--blue)}
+  .card .tag.base{background:var(--green)}
+
+  /* ═══ VIEWER ═══ */
+  .viewer{
+    flex:1;display:flex;flex-direction:column;
+    background:var(--card);border-radius:12px;
+    border:1px solid var(--border);box-shadow:0 2px 10px var(--shadow);
+    overflow:hidden;transition:all .3s;
+  }
+  .canvas{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    position:relative;
+    background:linear-gradient(180deg,var(--accent-pale) 0%,var(--bg2) 100%);
+  }
+  .canvas .ph{font-family:'Nunito',sans-serif;font-size:80px;font-weight:900;color:var(--accent);opacity:.1}
+  .canvas .lbl{position:absolute;bottom:12px;left:16px}
+  .canvas .lbl h3{font-size:16px;font-weight:900;color:var(--text)}
+  .canvas .lbl h3 em{
+    font-style:normal;
+    background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .canvas .lbl .meta{font-size:9px;font-weight:700;color:var(--text2);margin-top:1px;display:flex;align-items:center;gap:6px}
+  .canvas .lbl .meta .dot{width:3px;height:3px;background:var(--accent);border-radius:50%}
+  .stats{position:absolute;top:12px;right:12px;display:flex;gap:4px}
+  .stat{
+    padding:4px 8px;border-radius:6px;background:var(--card);
+    border:1px solid var(--border);font-size:9px;font-weight:700;color:var(--text2);
+    box-shadow:0 1px 4px var(--shadow);
+  }
+  .stat b{color:var(--accent-dark);font-weight:900;font-size:11px}
+
+  .controls{
+    padding:10px 14px;background:var(--card);
+    border-top:1px solid var(--border);
+    display:flex;flex-direction:column;gap:8px;
+  }
+
+  /* Expression selector */
+  .expr-row{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+  .expr-lbl{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3);min-width:50px}
+  .expr-b{
+    padding:3px 8px;border:2px solid var(--border);
+    background:var(--card);color:var(--text2);cursor:pointer;
+    font-family:'Nunito',sans-serif;font-size:9px;font-weight:700;
+    border-radius:5px;transition:all .2s;
+  }
+  .expr-b:hover{border-color:var(--accent);color:var(--accent-dark);background:var(--accent-pale)}
+  .expr-b.on{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 6px var(--shadow2)}
+
+  /* Shader controls */
+  .shader-row{display:flex;gap:12px;align-items:center}
+  .sl-g{flex:1;display:flex;flex-direction:column;gap:2px}
+  .sl-h{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);display:flex;justify-content:space-between}
+  .sl-h span{color:var(--accent-dark);font-weight:900;font-size:10px}
+  .sl-g input[type=range]{-webkit-appearance:none;height:4px;border-radius:2px;background:var(--accent-light);outline:none}
+  .sl-g input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:14px;height:14px;
+    background:var(--accent);border-radius:50%;cursor:pointer;
+    border:2px solid #fff;box-shadow:0 1px 4px var(--shadow2);
+  }
+
+  .check-row{display:flex;gap:14px;align-items:center}
+  .chk{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--text2);cursor:pointer}
+  .chk input{display:none}
+  .chk .bx{
+    width:16px;height:16px;border:2px solid var(--border);border-radius:4px;
+    display:flex;align-items:center;justify-content:center;transition:all .2s;background:var(--card);
+  }
+  .chk input:checked+.bx{background:var(--accent);border-color:var(--accent)}
+  .chk input:checked+.bx::after{content:'✓';color:#fff;font-size:10px;font-weight:900}
+
+  .action-row{display:flex;gap:6px;justify-content:flex-end;align-items:center}
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <h1>P5X Studio<br><span>Tools</span></h1>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-i"><div class="nav-icon">◆</div> Bundles</div>
+      <div class="nav-i"><div class="nav-icon">▤</div> Inspector</div>
+      <div class="nav-i"><div class="nav-icon">⌕</div> Resources</div>
+      <div class="nav-i"><div class="nav-icon">▣</div> Textures</div>
+      <div class="nav-i"><div class="nav-icon">♪</div> Media</div>
+      <div class="nav-i"><div class="nav-icon">⧉</div> Bulk <div class="badge">2.4k</div></div>
+      <div class="nav-i on"><div class="nav-icon">☻</div> Bust-Ups <div class="badge">125</div></div>
+    </nav>
+
+    <div class="sep"></div>
+
+    <!-- Config panel -->
+    <div class="config-panel" id="configPanel">
+      <div class="config-label">Tema</div>
+      <div class="theme-grid">
+        <div class="theme-dot on" data-t="pink" onclick="setTheme('pink',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="white" onclick="setTheme('white',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="black" onclick="setTheme('black',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="mint" onclick="setTheme('mint',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="coffee" onclick="setTheme('coffee',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="orange" onclick="setTheme('orange',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="red" onclick="setTheme('red',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="purple" onclick="setTheme('purple',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="blue" onclick="setTheme('blue',this)"><span class="check">✓</span></div>
+        <div class="theme-dot" data-t="yellow" onclick="setTheme('yellow',this)"><span class="check">✓</span></div>
+      </div>
+      <div class="config-label">Idioma</div>
+      <div class="lang-row">
+        <div class="lang-btn on">ES</div>
+        <div class="lang-btn">EN</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <span class="val">254</span> en juego · <span class="val">125</span> extraídos
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="header">
+      <div>
+        <h2><em>Bust-Ups</em></h2>
+        <div class="sub">Selecciona un personaje, expresión y renderiza con shader</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-out btn-sm">⤓ Dependencias</button>
+        <button class="btn btn-out">📋 Export selected</button>
+        <button class="btn btn-pri">⤓ Export all</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Grid -->
+      <div class="grid-wrap">
+        <div class="grid-head">Bust-Ups · 125 extraídos</div>
+        <div class="grid">
+          <div class="card on"><div class="card-img">X</div><div class="card-info"><div class="name">xiachuanling</div><div class="ropa">changfu01</div></div><div class="tag base">base</div></div>
+          <div class="card"><div class="card-img">X</div><div class="card-info"><div class="name">xiachuanling</div><div class="ropa">guaidao01</div></div><div class="tag base">base</div></div>
+          <div class="card"><div class="card-img">X</div><div class="card-info"><div class="name">xiachuanling</div><div class="ropa">guaidaofu</div></div></div>
+          <div class="card"><div class="card-img">L</div><div class="card-info"><div class="name">lizi</div><div class="ropa">changfu01</div></div><div class="tag base">base</div></div>
+          <div class="card"><div class="card-img">L</div><div class="card-info"><div class="name">lizi</div><div class="ropa">guaidao01</div></div></div>
+          <div class="card"><div class="card-img">S</div><div class="card-info"><div class="name">suyu</div><div class="ropa">changfu01</div></div></div>
+          <div class="card"><div class="card-img">J</div><div class="card-info"><div class="name">jianajun</div><div class="ropa">changfu01</div></div></div>
+          <div class="card"><div class="card-img">Q</div><div class="card-info"><div class="name">qinyinyin</div><div class="ropa">richang01</div></div><div class="tag collab">collab</div></div>
+          <div class="card"><div class="card-img">Q</div><div class="card-info"><div class="name">qinyinyin</div><div class="ropa">guaidaofu</div></div><div class="tag collab">collab</div></div>
+          <div class="card"><div class="card-img">M</div><div class="card-info"><div class="name">meiluopu</div><div class="ropa">richang01</div></div></div>
+          <div class="card"><div class="card-img">A</div><div class="card-info"><div class="name">aolilvge</div><div class="ropa">changfu01</div></div></div>
+          <div class="card"><div class="card-img">Y</div><div class="card-info"><div class="name">yuanxiaoxiao</div><div class="ropa">changfu01</div></div></div>
+        </div>
+      </div>
+
+      <!-- Viewer -->
+      <div class="viewer">
+        <div class="canvas">
+          <div class="ph">X</div>
+          <div class="stats">
+            <div class="stat"><b>688</b> px</div>
+            <div class="stat"><b>47</b> capas</div>
+            <div class="stat"><b>14</b> expr</div>
+          </div>
+          <div class="lbl">
+            <h3><em>Xiachuanling</em></h3>
+            <div class="meta">
+              <span>changfu01</span><div class="dot"></div>
+              <span>base</span><div class="dot"></div>
+              <span>tongchang</span><div class="dot"></div>
+              <span>216 shaders</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <!-- Expression -->
+          <div class="expr-row">
+            <div class="expr-lbl">Expresión</div>
+            <button class="expr-b on">Tongchang</button>
+            <button class="expr-b">Xiao</button>
+            <button class="expr-b">Shengqi</button>
+            <button class="expr-b">Jingsong</button>
+            <button class="expr-b">Jingya</button>
+            <button class="expr-b">Renzhen</button>
+            <button class="expr-b">Kuqi</button>
+            <button class="expr-b">Beiai</button>
+            <button class="expr-b">Xingfen</button>
+            <button class="expr-b">Tongku</button>
+            <button class="expr-b">Huangzhang</button>
+            <button class="expr-b">Baoyuan</button>
+            <button class="expr-b">Xiyue</button>
+            <button class="expr-b">Weixiao</button>
+          </div>
+
+          <!-- Shader -->
+          <div class="shader-row">
+            <div class="sl-g"><div class="sl-h">Brillo <span>1.00</span></div><input type="range" min="0" max="200" value="100"></div>
+            <div class="sl-g"><div class="sl-h">Saturación <span>1.00</span></div><input type="range" min="0" max="200" value="100"></div>
+            <div class="sl-g"><div class="sl-h">Contraste <span>1.00</span></div><input type="range" min="0" max="200" value="100"></div>
+            <div class="sl-g"><div class="sl-h">Shader Mix <span>100%</span></div><input type="range" min="0" max="100" value="100"></div>
+          </div>
+
+          <!-- Checkboxes (matching real app) -->
+          <div class="check-row">
+            <label class="chk"><input type="checkbox" checked><div class="bx"></div> Shader</label>
+            <label class="chk"><input type="checkbox" checked><div class="bx"></div> Tinte</label>
+            <label class="chk"><input type="checkbox"><div class="bx"></div> Fondo</label>
+          </div>
+
+          <!-- Actions (matching real app) -->
+          <div class="action-row">
+            <button class="btn btn-out btn-sm">Choose folder…</button>
+            <button class="btn btn-out">Export selected</button>
+            <button class="btn btn-pri">⤓ Export all</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function setTheme(t, el) {
+      document.body.className = t === 'pink' ? '' : 'theme-' + t;
+      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('on'));
+      el.classList.add('on');
+    }
+    // Toggle config panel when clicking "Inspector" nav
+    document.querySelectorAll('.nav-i').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.nav-i').forEach(i => i.classList.remove('on'));
+        this.classList.add('on');
+        const isConfig = this.textContent.includes('Inspector');
+        document.getElementById('configPanel').classList.toggle('show', isConfig);
+      });
+    });
+  </script>
+</body>
+</html>
