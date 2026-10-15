@@ -10,6 +10,7 @@ let tipos = [];                    // tipos de bundle reales + recuento
 let bundles = [];                  // catalogo completo (una sola carga)
 let tipoSel = null;                // chip activo
 let selId = null;                  // fila elegida en el explorador
+let soloNuevos = false;            // filtrar el explorador solo por bundles nuevos (updates)
 let lastBundle = null;             // para el boton "ver en la carpeta"
 let inspFilas = [];                // recursos del inspector
 let inspSel = new Set();           // indices seleccionados
@@ -62,7 +63,16 @@ function pintarChips(){
 
 function filtra(){
   const q = $("#q").value.trim().toLowerCase();
-  return bundles.filter(d => (!tipoSel || d.tipo === tipoSel) && (!q || d.fichero.toLowerCase().includes(q) || d.ruta.toLowerCase().includes(q)));
+  return bundles.filter(d => (!tipoSel || d.tipo === tipoSel) && (!soloNuevos || d.nuevo) && (!q || d.fichero.toLowerCase().includes(q) || d.ruta.toLowerCase().includes(q)));
+}
+
+function pintarNovedades(){
+  // el boton de "solo nuevos" lleva el recuento dentro; sin nuevos recientes no se insiste
+  const n = bundles.filter(d => d.nuevo).length;
+  const b = $("#btn-solo-nuevos");
+  b.textContent = tr("web_new_only") + (n ? ` (${num(n)})` : "");
+  b.setAttribute("aria-pressed", String(!!soloNuevos));
+  b.hidden = !n && !soloNuevos;
 }
 
 function pintarLista(){
@@ -75,7 +85,7 @@ function pintarLista(){
   const trozo = rows.slice(0, DISPLAY_MAX);
   $("#list").innerHTML = trozo.map(d => `
     <div class="row" data-id="${esc(d.id)}" aria-selected="${selId===d.id}">
-      <div class="name"><span class="badge t-${esc(d.cat)}"></span><b>${esc(d.fichero)}</b><s>${esc(d.tipo)}</s></div>
+      <div class="name"><span class="badge t-${esc(d.cat)}"></span><b>${esc(d.fichero)}</b>${d.nuevo ? `<em class="nuevo">${esc(tr("web_new"))}</em>` : ""}<s>${esc(d.tipo)}</s></div>
       <div class="k">${d.n_mallas ? num(d.n_mallas)+" "+esc(tr(d.n_mallas>1?"web_unit_mesh_pl":"web_unit_mesh")) : "—"}</div>
       <div class="k">${d.n_texturas ? num(d.n_texturas)+" "+esc(tr("web_unit_tex")) : "—"}</div>
       <div class="k">${d.mb.toFixed(1)} MB</div>
@@ -622,11 +632,19 @@ async function iniciar(){
 
   tipos = await api.tipos();
   bundles = await api.bundles();
-  pintarChips(); pintarLista();
+  pintarChips(); pintarNovedades(); pintarLista();
   await refrescarRecursos();
 
   // listener de eventos
   [["#q", pintarLista, "input"],
+   ["#btn-solo-nuevos", () => { soloNuevos = !soloNuevos; pintarNovedades(); pintarLista(); }, "click"],
+   ["#btn-marcar-vistos", async () => {
+      const r = await api.marcar_novedades();
+      bundles = await api.bundles();       // ya nada queda marcado como nuevo
+      soloNuevos = false;
+      pintarNovedades(); pintarLista();
+      $("#count").textContent = fmt(tr("web_new_done"), num(r.marcados));
+    }, "click"],
    ["#d-close", () => { selId = null; $("#detail").hidden = true; pintarLista(); }, "click"],
    ["#d-open", async () => { $("#insp-path").value = lastBundle || ""; ir("inspector"); await inspeccionar(lastBundle); }, "click"],
    ["#d-extract", async () => { const r = await api.exportar(lastBundle, "mesh,tex2d"); $("#d-assets").insertAdjacentHTML("afterbegin", `<li><u></u><span class="k" style="text-align:left">${esc(r.error ? fmt(tr("web_error"), r.error) : fmt(tr("web_media_done"), r.destino))}</span></li>`); }, "click"],

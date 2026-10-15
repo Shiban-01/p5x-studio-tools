@@ -826,3 +826,10 @@ h4 { font-size:11px; font-weight:800; color:var(--text2); text-transform:upperca
   background:var(--accent-pale); color:var(--text);
   font-family:monospace; font-size:11px;
 }
+
+/* novedades: bundles anadidos por actualizaciones del juego */
+.meta .novedades { margin-left:auto; display:flex; gap:6px; }
+.meta .novedades .chip { font-size:10px; padding:3px 8px; cursor:pointer; }
+.list .row .nuevo { font-style:normal; font-size:8px; font-weight:800; letter-spacing:.06em;
+  text-transform:uppercase; color:#fff; background:var(--accent); border-radius:6px;
+  padding:2px 5px; margin-left:6px; }

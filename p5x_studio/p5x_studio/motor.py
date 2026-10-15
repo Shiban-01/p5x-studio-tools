@@ -23,6 +23,7 @@ Cobertura de las cinco herramientas:
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from . import ajustes, herramientas, idiomas, lote
@@ -113,9 +114,56 @@ def _fila(b: dict) -> dict:
     }
 
 
+# --------------------------------------------------------------------------- novedades
+# Cada vez que el juego se actualiza aparecen bundles nuevos. Para poder ver SOLO esos, se guarda
+# un registro de los bundles ya vistos (`cache/bundles_conocidos.json`). La primera vez no hay
+# registro, se crea la base con lo que hay ahora y nada se marca como nuevo; a partir de ahí, todo
+# bundle que aparezca y no este en el registro es "nuevo" hasta que el usuario lo marca como visto.
+_RUTA_CONOCIDOS = ajustes.CACHE / "bundles_conocidos.json"
+
+
+def _conocidos() -> set[str]:
+    try:
+        datos = json.loads(_RUTA_CONOCIDOS.read_text(encoding="utf-8"))
+        return set(datos.get("rutas") or [])
+    except (OSError, ValueError):
+        return set()
+
+
+def _guardar_conocidos(rutas: set[str]) -> None:
+    _RUTA_CONOCIDOS.parent.mkdir(parents=True, exist_ok=True)
+    _RUTA_CONOCIDOS.write_text(
+        json.dumps({"rutas": sorted(r for r in rutas if r)}, ensure_ascii=False),
+        encoding="utf-8")
+
+
+def estado_novedades() -> dict:
+    """Los bundles que hay ahora y no estaban en la ultima vez que se marco como visto."""
+    actuales = {b.get("ruta") or "" for b in herramientas.catalogo_bundles()}
+    if not _RUTA_CONOCIDOS.exists():
+        _guardar_conocidos(actuales)      # primera ejecucion: la base es lo que hay hoy
+        return {"hay_base": False, "n_nuevos": 0, "nuevos": [], "n_total": len(actuales)}
+    nuevos = sorted(r for r in (actuales - _conocidos()) if r)
+    return {"hay_base": True, "n_nuevos": len(nuevos), "nuevos": nuevos,
+            "n_total": len(actuales)}
+
+
+def marcar_novedades_vistas() -> int:
+    """Da por vistos los bundles actuales: los deja de contar como nuevos. Devuelve el total."""
+    actuales = {b.get("ruta") or "" for b in herramientas.catalogo_bundles()}
+    _guardar_conocidos(actuales)
+    return len([r for r in actuales if r])
+
+
 def listar_bundles() -> list[dict]:
-    """Los bundles del disco (o del indice si lo hay), normalizados. NO abre ninguno."""
-    return [_fila(b) for b in herramientas.catalogo_bundles()]
+    """Los bundles del disco (o del indice si lo hay), normalizados. NO abre ninguno.
+
+    Cada fila lleva `nuevo: bool`: si el bundle no estaba en la ultima visita al juego (ver
+    `estado_novedades`), es un bundle anadido por una actualizacion reciente.
+    """
+    nuevos = set(estado_novedades()["nuevos"])
+    return [dict(_fila(b), nuevo=(b.get("ruta") or "") in nuevos)
+            for b in herramientas.catalogo_bundles()]
 
 
 def tipos_bundle() -> list[dict]:
