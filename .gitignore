@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Datos pesados del juego
+_dl/bustups_cache/
+_dl/lihui_shader_json/
+p5x_studio/extracted/
+p5x_studio/engine/
+
+# Ejecutables y binarios
+*.exe
+*.dll
+*.so
+*.pyd
+
+# Thumbnails y texturas regenerables
+p5x_studio/p5x_studio/datos/thumbnails/
+p5x_studio/p5x_studio/ui_web/game_textures/
+
+# Proyectos Unity y datos grandes
+unity_projects/
+unity_com/
+unity_respaldo/
+game_dump/
+il2cpp/
+kotone_mmd*/
+kotone_artista/
+kotone_shiomi/
+kotone_source/
+n040_theo/
+output/
+prototipo_ui/
+tutorial_extraccion_3d/
+discord/
+
+# Temp
+*.tmp
+*.bak
+*.log
+.hermes/
+.DS_Store
+Thumbs.db
+
+# Archivos grandes
+*.zip
+*.7z
+*.rar
+*.usm
+*.awb
+*.acb
+*.bundle
+_dl/il2cpp_out/
+_dl/desensamblado*
+tools/

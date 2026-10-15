@@ -1,0 +1,33 @@
+{
+  "shader_nombre": "UI/UIMultipleGradient",
+  "descripcion": "Shader real usado en Persona 5 X para los bustos de diálogo",
+  "valores_originales": {
+    "effect_factor": 1.0,
+    "brillo": 1.0,
+    "saturacion": 1.0,
+    "contraste": 1.0,
+    "alfa_arriba": 0.5,
+    "alfa_abajo": 0.5,
+    "alfa_pos_abajo": 0.0,
+    "alfa_pos_arriba": 1.0,
+    "gra_brillo": 1.0,
+    "gra_saturacion": 1.0,
+    "gra_contraste": 1.0,
+    "desenfoque": 0,
+    "fuerza_desenfoque": 0.3,
+    "modo": 0,
+    "angulo": -1.5,
+    "centro": [0.5, 0.5],
+    "proporcion": [1.0, 1.0],
+    "paradas": [
+      [0.0, [0.122641504, 0.122641504, 0.122641504]],
+      [0.18236, [0.33962262, 0.33962262, 0.33962262]],
+      [0.33236, [0.8867924, 0.60894805, 0.33882165]],
+      [0.50883, [0.8551873, 1.0, 0.0]],
+      [0.74118, [0.5943396, 0.26191583, 0.0]],
+      [1.0, [0.2264151, 0.08686493, 0.0]]
+    ]
+  },
+  "fuente": "ingeniería inversa del juego Persona 5 X (versión global)",
+  "fecha_extracción": "2026-10-06"
+}
