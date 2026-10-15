@@ -138,34 +138,43 @@ def _bundles_del_disco() -> list[dict]:
 def catalogo_bundles() -> list[dict]:
     """Los bundles con todo lo que se sabe de cada uno, sin abrir ninguno.
 
-    Si el indice de ficheros NO esta (p. ej. en una version publica sin indices empaquetados), se
-    listan los bundles de la PROPIA CARPETA DEL JUEGO: el explorador sigue funcionando y solo se
-    pierden los datos que aportaba el indice (actor, traje, mallas, texturas, contenido). Con el
-    indice presente se cruzan las tres fuentes de siempre: ficheros (tipo, tamano), trajes (papel,
-    actor, traje, mallas, texturas) y contenido (tipos de recurso que lleva dentro).
+    SIEMPRE escanea la carpeta del juego para listar los bundles reales en disco. Si ademas hay
+    indice de ficheros (del juego chino, ~1 an~o por delante), se cruzan los datos para enriquecer
+    cada bundle con actor, traje, mallas, texturas y contenido. Los bundles del indice que NO
+    esten en disco se ignoran (son de otra version); los bundles de disco que no esten en el
+    indice se muestran igualmente (p. ej. los que an~ade una actualizacion de la version global).
     """
     global _CATALOGO
     if _CATALOGO is not None:
         return _CATALOGO
+
+    # 1) Base: SIEMPRE los bundles del disco (version global / Steam)
+    en_disco = _bundles_del_disco()
+
+    # 2) Enriquecer con datos del indice (si existe)
     ficheros = indice_ficheros().get("ficheros", [])
-    if not ficheros:
-        _CATALOGO = _bundles_del_disco()
-        return _CATALOGO
-    tb = trajes.datos().get("bundles", {}) if trajes.disponible() else {}
-    asx = indice_assets()
-    salida = []
+    idx_map: dict[str, dict] = {}
     for f in ficheros:
         ruta = "%s/%s" % (f.get("carpeta", ""), f.get("fichero", ""))
+        idx_map[ruta] = f
+
+    tb = trajes.datos().get("bundles", {}) if trajes.disponible() else {}
+    asx = indice_assets()
+
+    salida = []
+    for d in en_disco:
+        ruta = d.get("ruta", "")
+        f = idx_map.get(ruta) or {}
         b = tb.get(ruta) or {}
         a = asx.get(ruta) or {}
         salida.append({
             "ruta": ruta,
-            "carpeta": f.get("carpeta", ""),
-            "fichero": f.get("fichero", ""),
-            "tipo": (f.get("tipo") or "").lower(),
+            "carpeta": d.get("carpeta", ""),
+            "fichero": d.get("fichero", ""),
+            "tipo": (d.get("tipo") or f.get("tipo") or "").lower(),
             "que_es": f.get("que_es", ""),
             "nombre": f.get("nombre", ""),
-            "mb": f.get("mb", 0) or 0,
+            "mb": d.get("mb", 0) or f.get("mb", 0) or 0,
             "papel": b.get("papel", ""),
             "actores": b.get("actores") or [],
             "trajes": b.get("trajes") or [],
@@ -174,6 +183,7 @@ def catalogo_bundles() -> list[dict]:
             "tiene": a.get("tiene") or [],
             "cuenta": a.get("cuenta") or {},
             "quien": a.get("quien") or [],
+            "en_indice": bool(f),
         })
     _CATALOGO = salida
     return salida
