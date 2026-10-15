@@ -138,31 +138,34 @@ def _guardar_conocidos(rutas: set[str]) -> None:
 
 
 def estado_novedades() -> dict:
-    """Los bundles que hay ahora y no estaban en la ultima vez que se marco como visto."""
-    actuales = {b.get("ruta") or "" for b in herramientas.catalogo_bundles()}
-    if not _RUTA_CONOCIDOS.exists():
-        _guardar_conocidos(actuales)      # primera ejecucion: la base es lo que hay hoy
-        return {"hay_base": False, "n_nuevos": 0, "nuevos": [], "n_total": len(actuales)}
-    nuevos = sorted(r for r in (actuales - _conocidos()) if r)
-    return {"hay_base": True, "n_nuevos": len(nuevos), "nuevos": nuevos,
-            "n_total": len(actuales)}
+    """Los bundles nuevos y modificados desde la ultima vez que se marco como visto."""
+    from . import bundles_tracker
+    cat = herramientas.catalogo_bundles()
+    resultado = bundles_tracker.comparar(cat)
+    if not resultado.get("hay_base"):
+        return {"hay_base": False, "n_nuevos": 0, "n_modificados": 0,
+                "nuevos": [], "modificados": [], "n_total": resultado["n_total"]}
+    return resultado
 
 
 def marcar_novedades_vistas() -> int:
-    """Da por vistos los bundles actuales: los deja de contar como nuevos. Devuelve el total."""
-    actuales = {b.get("ruta") or "" for b in herramientas.catalogo_bundles()}
-    _guardar_conocidos(actuales)
-    return len([r for r in actuales if r])
+    """Da por vistos los bundles actuales: los deja de contar como nuevos/modificados. Devuelve el total."""
+    from . import bundles_tracker
+    return bundles_tracker.marcar_vistos(herramientas.catalogo_bundles())
 
 
 def listar_bundles() -> list[dict]:
     """Los bundles del disco (o del indice si lo hay), normalizados. NO abre ninguno.
 
-    Cada fila lleva `nuevo: bool`: si el bundle no estaba en la ultima visita al juego (ver
-    `estado_novedades`), es un bundle anadido por una actualizacion reciente.
+    Cada fila lleva `nuevo: bool` y `modificado: bool` — se marcan los bundles anadidos o
+    cambiados por una actualizacion reciente del juego (ver `estado_novedades`).
     """
-    nuevos = set(estado_novedades()["nuevos"])
-    return [dict(_fila(b), nuevo=(b.get("ruta") or "") in nuevos)
+    estado = estado_novedades()
+    nuevos = set(estado.get("nuevos") or [])
+    modificados = set(estado.get("modificados") or [])
+    return [dict(_fila(b),
+                 nuevo=(b.get("ruta") or "") in nuevos,
+                 modificado=(b.get("ruta") or "") in modificados)
             for b in herramientas.catalogo_bundles()]
 
 
