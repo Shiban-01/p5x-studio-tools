@@ -864,6 +864,29 @@ def buscar_audios_video(ruta_usm: str, log=None) -> list[dict]:
     if not vgm:
         return []
     orden = {idi: n for n, idi in enumerate(_IDIOMAS_ORDEN)}
+
+    # Anadir como candidatos los cues que compartan sufijo numerico (fallback):
+    # p5x_twins_2340_ly1 -> Login_p5x_2340_ly1 (banco Anim_Login que SI existe)
+    # Solo si el cue original no tiene banco existente.
+    m = re.search(r"(_\d+_ly\d+)$", stem.lower())
+    banco_original_existe = False
+    for cue_orig in cands:
+        for banco in mapa.get(cue_orig, []):
+            if _busca_acb(banco):
+                banco_original_existe = True
+                break
+        if banco_original_existe:
+            break
+    if not banco_original_existe and m:
+        sufijo = m.group(1)
+        extras = [cn for cn in mapa if cn.lower().endswith(sufijo) and cn not in cands]
+        extras.sort(key=lambda cn: _puntua_cue(stem, cn), reverse=True)
+        cands = cands + extras
+
+    # Duracion conocida (del banco chino) para validar el fallback
+    dur_esperada = _DURACIONES_CONOCIDAS.get(stem.lower()) or _DURACIONES_CONOCIDAS.get(stem)
+    es_fallback = not banco_original_existe
+
     for cue in cands[:8]:
         variantes: dict = {}
         for banco in mapa.get(cue, []):
@@ -873,6 +896,12 @@ def buscar_audios_video(ruta_usm: str, log=None) -> list[dict]:
             pista = _pista_de_banco(vgm, acb, cue)
             if not pista:
                 continue
+            # Si es fallback y tenemos duracion esperada, validar que la pista no sea
+            # demasiado diferente (rechazar pistas del login completo vs cancion especifica)
+            if es_fallback and dur_esperada:
+                diff = abs(pista[2] - dur_esperada)
+                if diff > 15.0:  # rechazar si se aleja mas de 15s
+                    continue
             if banco in variantes:       # el mismo banco listado dos veces en los mapas
                 continue
             variantes[banco] = {"acb": str(acb), "banco": banco, "cue": cue,
@@ -887,6 +916,14 @@ def buscar_audios_video(ruta_usm: str, log=None) -> list[dict]:
             return sorted(variantes.values(),
                           key=lambda v: (orden.get(v["idioma"], 9), v["banco"]))
     return []
+
+
+# Duraciones conocidas del banco chino (Anim_Login_JC.acb) para validar el fallback.
+# Si el banco no existe en la version global, se usa la duracion para descartar pistas incorrectas.
+_DURACIONES_CONOCIDAS = {
+    "p5x_twins_2340_ly1": 76.322,
+    "p5x_twins_2340_ly3": 65.667,
+}
 
 
 def buscar_audio_video(ruta_usm: str, log=None) -> dict | None:

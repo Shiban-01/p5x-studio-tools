@@ -119,6 +119,7 @@ def _fila(b: dict) -> dict:
 # un registro de los bundles ya vistos (`cache/bundles_conocidos.json`). La primera vez no hay
 # registro, se crea la base con lo que hay ahora y nada se marca como nuevo; a partir de ahí, todo
 # bundle que aparezca y no este en el registro es "nuevo" hasta que el usuario lo marca como visto.
+_TAREA: dict = {}  # estado de la tarea en curso (para el sondeo)
 _RUTA_CONOCIDOS = ajustes.CACHE / "bundles_conocidos.json"
 
 
@@ -152,6 +153,105 @@ def marcar_novedades_vistas() -> int:
     """Da por vistos los bundles actuales: los deja de contar como nuevos/modificados. Devuelve el total."""
     from . import bundles_tracker
     return bundles_tracker.marcar_vistos(herramientas.catalogo_bundles())
+
+
+def _version_actual() -> str:
+    """La version de la app."""
+    return "0.0.2"
+
+
+def verificar_update() -> dict:
+    """Comprueba si hay una version mas nueva en GitHub. Devuelve {'hay_update': bool, ...}."""
+    import urllib.request, json as _json
+    try:
+        req = urllib.request.Request(
+            "https://api.github.com/repos/Shiban-01/p5x-studio-tools/releases/latest",
+            headers={"User-Agent": "P5X-Studio-Tools"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = _json.loads(resp.read())
+        tag = (data.get("tag_name") or "").lstrip("v")
+        url = data.get("html_url") or ""
+        notas = (data.get("body") or "")[:500]
+        actual = _version_actual()
+        hay = tag != actual and tag != ""
+        return {"hay_update": hay, "version_actual": actual, "version_nueva": tag,
+                "url": url, "notas": notas}
+    except Exception as e:
+        return {"hay_update": False, "version_actual": _version_actual(),
+                "version_nueva": "", "url": "", "error": str(e)}
+
+
+def abrir_url_update(url: str) -> None:
+    """Abre la URL del update en el navegador por defecto."""
+    import webbrowser
+    if url:
+        webbrowser.open(url)
+
+
+def _version_actual() -> str:
+    """La version de la app."""
+    return "0.0.2"
+
+
+def verificar_update() -> dict:
+    """Comprueba si hay una version mas nueva en GitHub. Devuelve {'hay_update': bool, ...}."""
+    import urllib.request, json as _json
+    try:
+        req = urllib.request.Request(
+            "https://api.github.com/repos/Shiban-01/p5x-studio-tools/releases/latest",
+            headers={"User-Agent": "P5X-Studio-Tools"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = _json.loads(resp.read())
+        tag = (data.get("tag_name") or "").lstrip("v")
+        url = data.get("html_url") or ""
+        notas = (data.get("body") or "")[:500]
+        actual = _version_actual()
+        hay = tag != actual and tag != ""
+        return {"hay_update": hay, "version_actual": actual, "version_nueva": tag,
+                "url": url, "notas": notas}
+    except Exception as e:
+        return {"hay_update": False, "version_actual": _version_actual(),
+                "version_nueva": "", "url": "", "error": str(e)}
+
+
+def abrir_url_update(url: str) -> None:
+    """Abre la URL del update en el navegador por defecto."""
+    import webbrowser
+    if url:
+        webbrowser.open(url)
+
+
+def _version_actual() -> str:
+    """La version de la app."""
+    return "0.0.2"
+
+
+def verificar_update() -> dict:
+    """Comprueba si hay una version mas nueva en GitHub. Devuelve {'hay_update': bool, ...}."""
+    import urllib.request, json as _json
+    try:
+        req = urllib.request.Request(
+            "https://api.github.com/repos/Shiban-01/p5x-studio-tools/releases/latest",
+            headers={"User-Agent": "P5X-Studio-Tools"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = _json.loads(resp.read())
+        tag = (data.get("tag_name") or "").lstrip("v")
+        url = data.get("html_url") or ""
+        notas = (data.get("body") or "")[:500]
+        actual = _version_actual()
+        hay = tag != actual and tag != ""
+        return {"hay_update": hay, "version_actual": actual, "version_nueva": tag,
+                "url": url, "notas": notas}
+    except Exception as e:
+        return {"hay_update": False, "version_actual": _version_actual(),
+                "version_nueva": "", "url": "", "error": str(e)}
+
+
+def abrir_url_update(url: str) -> None:
+    """Abre la URL del update en el navegador por defecto."""
+    import webbrowser
+    if url:
+        webbrowser.open(url)
 
 
 def listar_bundles() -> list[dict]:
@@ -307,6 +407,37 @@ def carpeta_extraidas() -> str:
 def listar_media(carpeta: str | Path | None = None) -> dict:
     """Los .usm y .awb del cliente. Cada .usm lleva su distintivo de audio (`sin_dato` si no hay)."""
     return herramientas.listar_media(Path(carpeta) if carpeta else None)
+
+
+def extraer_todos_media(tipo: str = "usm") -> dict:
+    """Extrae todos los .usm (a mp4) o .acb (a wav) del cliente. Tarea en background."""
+    import threading
+    datos = listar_media()
+    lista = datos.get(tipo, [])
+    destino = ajustes.carpeta_herramientas() / ("videos" if tipo == "usm" else "audio")
+    destino.mkdir(parents=True, exist_ok=True)
+    total = len(lista)
+
+    def _trabajo():
+        hechos = 0
+        for item in lista:
+            try:
+                ruta = item.get("ruta") or item.get("path") or ""
+                if not ruta:
+                    continue
+                if tipo == "usm":
+                    extraer_video(ruta, destino)
+                else:
+                    extraer_audio(ruta, destino)
+                hechos += 1
+            except Exception:
+                pass
+        _TAREA["activa"] = False
+
+    _TAREA.clear()
+    _TAREA.update({"activa": True, "tipo": f"media_{tipo}", "hechos": 0, "total": total})
+    threading.Thread(target=_trabajo, daemon=True).start()
+    return {"ok": True, "total": total, "destino": str(destino)}
 
 
 def extraer_video(ruta_usm: str, destino: str | Path, log=None) -> str:
@@ -481,21 +612,17 @@ def textos() -> dict:
 
 
 def texturas_listar(carpeta: str = "") -> dict:
-    """Las imagenes de una carpeta de extraccion, con tamano y dimensiones para el visor."""
-    from PIL import Image
+    """Las imagenes de una carpeta de extraccion, con tamano. SIN abrir cada imagen (rapido)."""
     from pathlib import Path
-    base = ajustes.carpeta_extraidas()
+    base = ajustes.carpeta_herramientas()
     if carpeta:
         base = Path(base) / carpeta
     imagenes = []
     for p in herramientas.imagenes_de(Path(base)):
-        info = {"ruta": str(p), "nombre": p.name, "bytes": 0, "ancho": 0, "alto": 0}
         try:
-            info["bytes"] = p.stat().st_size
-            with Image.open(p) as img:
-                info["ancho"], info["alto"] = img.size
-        except Exception:
-            pass
-        imagenes.append(info)
+            sz = p.stat().st_size
+        except OSError:
+            sz = 0
+        imagenes.append({"ruta": str(p), "nombre": p.name, "bytes": sz})
     return {"ok": True, "imagenes": imagenes, "n": len(imagenes),
             "carpeta": str(base)}

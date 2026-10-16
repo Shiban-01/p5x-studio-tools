@@ -63,6 +63,13 @@ class Api:
     def bundles(self):
         return motor.listar_bundles()
 
+    def novedades(self):
+        """Bundles anadidos por actualizaciones del juego desde la ultima vez que se marco visto."""
+        return motor.estado_novedades()
+
+    def marcar_novedades(self):
+        return {"marcados": motor.marcar_novedades_vistas()}
+
     def ficha(self, ruta):
         return motor.ficha_bundle(ruta)
 
@@ -78,6 +85,9 @@ class Api:
 
     def buscar(self, texto="", tipo="", limite=1000):
         return motor.buscar_recursos(texto, tipo, limite)
+
+    def texturas_listar(self, carpeta=""):
+        return motor.texturas_listar(carpeta)
 
     def imagenes(self, carpeta=None):
         return motor.imagenes_de(carpeta or motor.carpeta_extraidas())
@@ -124,6 +134,53 @@ class Api:
         except Exception:
             subprocess.Popen(["explorer", motor.carpeta_extraidas()])
         return True
+
+    def media_extraer_todos_usm(self):
+        """Extrae TODOS los .usm a mp4. Lanza tarea en background."""
+        return motor.extraer_todos_media("usm")
+
+    def media_extraer_todos_acb(self):
+        """Extrae TODOS los .acb/.awb a wav. Lanza tarea en background."""
+        return motor.extraer_todos_media("awb")
+
+    def verificar_update(self):
+        return motor.verificar_update()
+
+    def abrir_url_update(self, url):
+        motor.abrir_url_update(url)
+
+    def texturas_preview(self, carpeta="", limite=40):
+        """Primeras imagenes con base64 inline para que la galeria las pinte directo."""
+        import base64, mimetypes as _mm, os as _os
+        r = motor.texturas_listar(carpeta)
+        imgs = []
+        for item in r.get("imagenes", [])[:limite]:
+            ruta = item.get("ruta", "")
+            src = ""
+            if ruta and _os.path.isfile(ruta):
+                try:
+                    mt = _mm.guess_type(ruta)[0] or "image/png"
+                    with open(ruta, "rb") as f:
+                        src = "data:" + mt + ";base64," + base64.b64encode(f.read()).decode()
+                except Exception:
+                    pass
+            imgs.append({"ruta": ruta, "nombre": item.get("nombre", ""),
+                         "bytes": item.get("bytes", 0), "src": src})
+        return {"ok": True, "imagenes": imgs, "n_total": r.get("n", 0),
+                "carpeta": r.get("carpeta", "")}
+
+    def tex_imagen_data(self, ruta):
+        """Devuelve la imagen como data URL base64 (para que el visor la muestre)."""
+        import base64, mimetypes as _mm, os as _os
+        if not ruta or not _os.path.isfile(ruta):
+            return {"ok": False}
+        try:
+            mt = _mm.guess_type(ruta)[0] or "image/png"
+            with open(ruta, "rb") as f:
+                data = base64.b64encode(f.read()).decode("ascii")
+            return {"ok": True, "src": f"data:{mt};base64,{data}"}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
 
     def texturas_exportar(self, ruta):
         try:
@@ -478,3 +535,25 @@ def arrancar(titulo: str = "P5X Studio · Tools %s" % ajustes.VERSION) -> None:
     # gui='edgechromium' a proposito: si WebView2 no esta, queremos que FALLE y se caiga a la
     # clasica, en vez de que pywebview busque otro motor que el usuario no ha aprobado.
     webview.start(_capturar_si_pedido, gui="edgechromium")
+
+
+    def texturas_preview(self, carpeta="", limite=30):
+        """Primeras N imagenes con base64 inline para la galeria."""
+        import base64, mimetypes as _mm, os as _os
+        from pathlib import Path as _P
+        r = motor.texturas_listar(carpeta)
+        imgs = []
+        for item in r.get("imagenes", [])[:limite]:
+            ruta = item.get("ruta", "")
+            src = ""
+            if ruta and _os.path.isfile(ruta):
+                try:
+                    mt = _mm.guess_type(ruta)[0] or "image/png"
+                    with open(ruta, "rb") as f:
+                        src = f"data:{mt};base64," + base64.b64encode(f.read()).decode()
+                except Exception:
+                    pass
+            imgs.append({"ruta": ruta, "nombre": item.get("nombre", ""),
+                         "bytes": item.get("bytes", 0), "src": src})
+        return {"ok": True, "imagenes": imgs, "n_total": r.get("n", 0),
+                "carpeta": r.get("carpeta", "")}

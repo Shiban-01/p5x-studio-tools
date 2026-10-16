@@ -50,7 +50,6 @@
       <button data-p="bundles" aria-current="true"><span class="ico">◆</span><span data-t="web_nav_bundles">Bundles</span></button>
       <button data-p="inspector"><span class="ico">▤</span><span data-t="web_nav_inspector">Inspector</span></button>
       <button data-p="resources"><span class="ico">⌕</span><span data-t="web_nav_resources">Resources</span></button>
-      <button data-p="textures"><span class="ico">▣</span><span data-t="web_nav_textures">Textures</span></button>
       <button data-p="media"><span class="ico">♪</span><span data-t="web_nav_media">Video &amp; audio</span></button>
       <button data-p="bulk"><span class="ico">⧉</span><span data-t="web_bulk_tab">Bulk textures</span><span class="badge">2.4k</span></button>
       <button data-p="bustups"><span class="ico">☻</span><span data-t="web_bust_tab">Bust-ups</span><span class="badge">266</span></button>
@@ -152,87 +151,7 @@
     </section>
 
     <!-- ================================================= TEXTURAS -->
-    <section class="pantalla" id="p-textures">
-      <div class="head">
-        <h1 data-t="web_tex_title">Texture viewer</h1>
-        <p data-t="web_tex_sub">Browse, search and preview extracted textures.</p>
-      </div>
-
-      <!-- Barra de acciones -->
-      <div class="barra">
-        <label data-t="web_tex_bundle">Bundle</label>
-        <input type="text" id="tex-bundle" placeholder="110/shared_....bundle">
-        <button class="btn s" id="tex-export" data-t="web_tex_export">Extract textures</button>
-        <button class="btn s" id="tex-choose" data-t="web_tex_choose">Choose folder…</button>
-        <button class="btn p" id="tex-scan" data-t="web_tex_scan">Find images</button>
-      </div>
-
-      <!-- Breadcrumb + búsqueda + info -->
-      <div class="tex-toolbar">
-        <div class="tex-breadcrumb" id="tex-breadcrumb">
-          <span class="bc-root" data-t="web_tex_root">Extracted</span>
-        </div>
-        <div class="tex-search">
-          <span class="mag">⌕</span>
-          <input id="tex-search" placeholder="Search textures…" autocomplete="off">
-        </div>
-        <div class="tex-info" id="tex-info">
-          <span id="tex-count">0 images</span>
-        </div>
-      </div>
-
-      <!-- Filtros rápidos -->
-      <div class="tex-filters" id="tex-filters">
-        <button class="chip active" data-f="all" data-t="web_tex_filter_all">All</button>
-        <button class="chip" data-f="png">PNG</button>
-        <button class="chip" data-f="jpg">JPG</button>
-        <button class="chip" data-f="large">Large &gt;500px</button>
-      </div>
-
-      <!-- Contenido: sidebar + galería + detalles -->
-      <div class="tex-layout">
-        <!-- Sidebar de carpetas -->
-        <div class="tex-sidebar">
-          <div class="tex-sidebar-title" data-t="web_tex_folders">Folders</div>
-          <div class="tex-folder-tree" id="tex-folder-tree">
-            <div class="folder-item active" data-path=""><span class="ficon">📂</span> <span data-t="web_tex_root">Extracted</span></div>
-            <div class="folder-item" data-path="textures"><span class="ficon">📁</span> textures</div>
-            <div class="folder-item" data-path="textures/UI"><span class="ficon">📁</span> UI</div>
-            <div class="folder-item" data-path="portraits"><span class="ficon">📁</span> portraits</div>
-            <div class="folder-item" data-path="bustups"><span class="ficon">📁</span> bustups</div>
-            <div class="folder-item" data-path="thumbnails"><span class="ficon">📁</span> thumbnails</div>
-          </div>
-        </div>
-
-        <!-- Galería -->
-        <div class="tex-main">
-          <div class="estado" id="tex-estado"></div>
-          <div class="galeria" id="tex-galeria"></div>
-          <div class="visor" id="tex-visor" hidden><img id="tex-img" alt=""></div>
-        </div>
-
-        <!-- Panel de detalles -->
-        <div class="tex-details" id="tex-details">
-          <div class="tex-details-title" data-t="web_tex_details">Details</div>
-          <div class="tex-details-empty" id="tex-details-empty" data-t="web_tex_select">Select an image</div>
-          <div class="tex-details-body" id="tex-details-body" hidden>
-            <img id="tex-details-img" src="" alt="">
-            <div class="tex-details-info">
-              <div class="tdi-row"><span data-t="web_tex_name">Name</span><b id="tex-details-name">—</b></div>
-              <div class="tdi-row"><span data-t="web_tex_size">Size</span><b id="tex-details-size">—</b></div>
-              <div class="tdi-row"><span data-t="web_tex_dims">Dimensions</span><b id="tex-details-dims">—</b></div>
-              <div class="tdi-row"><span data-t="web_tex_path">Path</span><b id="tex-details-path">—</b></div>
-            </div>
-            <div class="tex-details-actions">
-              <button class="btn s" id="tex-details-reveal" data-t="web_tex_reveal">Open folder</button>
-              <button class="btn s" id="tex-details-copy" data-t="web_tex_copy">Copy path</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <p class="note" data-t="web_note">—</p>
-    </section>
+    
 
     <!-- ================================================= VIDEO Y AUDIO -->
     <section class="pantalla" id="p-media">
@@ -247,6 +166,8 @@
         </span>
         <button class="btn s" id="media-list" data-t="web_media_list">List</button>
         <button class="btn p" id="media-extract" data-t="web_media_extract_video">Extract MP4</button>
+        <button class="btn s" id="media-extract-all-usm" data-t="web_media_extract_all_usm">Extract all USM</button>
+        <button class="btn s" id="media-extract-all-acb" data-t="web_media_extract_all_acb">Extract all ACB</button>
         <button class="btn s" id="media-out" data-t="web_media_open_out">Open output folder</button>
       </div>
       <div class="estado" id="media-estado"></div>
