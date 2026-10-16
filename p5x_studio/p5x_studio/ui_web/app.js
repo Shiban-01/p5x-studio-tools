@@ -628,7 +628,7 @@ async function iniciar(){
 
   const est = await api.estado();
   $("#foot-index").textContent = fmt(tr("web_foot_index"), num(est.n_bundles));
-  $("#note-bundles").textContent = tr("web_note") + (est.origen === "disco" ? "  " + tr("web_source_disk") : "");
+  var _nb = $("#note-bundles"); if(_nb) _nb.textContent = tr("web_note") + (est.origen === "disco" ? "  " + tr("web_source_disk") : "");
 
   tipos = await api.tipos();
   bundles = await api.bundles();
