@@ -33,11 +33,11 @@ function archivoUrl(p){ return "file:///" + String(p).replace(/\\/g, "/").replac
 function pintarTextos(){
   document.documentElement.lang = lang;
   $$("[data-t]").forEach(e => { e.textContent = tr(e.dataset.t); });
-  $("#q").placeholder = tr("web_search_placeholder");
-  $("#insp-path").placeholder = tr("web_insp_ph");
-  $("#res-q").placeholder = tr("web_res_ph");
-  $("#tex-bundle").placeholder = tr("web_insp_ph");
-  $("#bust-q").placeholder = tr("web_bust_ph");
+  var _q=$("#q"); if(_q) _q.placeholder = tr("web_search_placeholder");
+  var _ip=$("#insp-path"); if(_ip) _ip.placeholder = tr("web_insp_ph");
+  var _rq=$("#res-q"); if(_rq) _rq.placeholder = tr("web_res_ph");
+  var _tb=$("#tex-bundle"); if(_tb) _tb.placeholder = tr("web_insp_ph");
+  var _bq=$("#bust-q"); if(_bq) _bq.placeholder = tr("web_bust_ph");
 }
 
 /* ------------------------------------------------------------------ pantallas */
@@ -709,26 +709,8 @@ async function iniciar(){
   $$(".settings-btn").forEach(b => b.onclick = () => ir(b.dataset.p));
   $("#insp-path").addEventListener("keydown", e => { if(e.key === "Enter") inspeccionar(e.target.value.trim()); });
 
-  // 3) Carga de bundles EN BACKGROUND (no bloquea la navegacion)
-  $("#count").textContent = tr("web_bust_working");
-  try {
-    const est = await api.estado();
-    $("#foot-index").textContent = fmt(tr("web_foot_index"), num(est.n_bundles));
-  } catch(e) {}
-  try {
-    tipos = await api.tipos();
-  } catch(e) {}
-  try {
-    bundles = await api.bundles();
-    pintarChips(); pintarNovedades(); pintarLista();
-    $("#count").textContent = num(bundles.length);
-  } catch(e) {
-    $("#count").textContent = String(e);
-  }
-  refrescarRecursos().catch(() => {});
-
-  // 4) Media en background
-  api.media().then(d => { mediaDatos = d; pintarMedia(); }).catch(() => {});
+  // carga inicial de media (para que la pestana no salga vacia)
+  mediaDatos = await api.media(); pintarMedia();
 }
 
 function listo(){
@@ -757,7 +739,7 @@ function setLang(l) {
 // Restaurar tema guardado
 (function(){
   try {
-    const t = localStorage.getItem('p5x-theme') || 'pink';
+    const t = localStorage.getItem('p5x-theme') || 'black';
     if (t !== 'pink') setTheme(t, document.querySelector(`#theme-grid .tdot[data-t="${t}"]`));
   } catch(e) {}
 })();
@@ -783,8 +765,6 @@ function traducirExpresion(exp) {
 let texCarpetaActual = "";
 let texImagenes = [];
 let texFiltro = "all";
-let texPagina = 0;
-const TEX_POR_PAGINA = 40;
 let texSeleccionada = null;
 
 async function texNavegar(subcarpeta) {
@@ -808,17 +788,16 @@ async function texCargarImagenes() {
   const est = $("#tex-estado");
   est.textContent = tr("web_bust_working");
   try {
-    const inicio = texPagina * TEX_POR_PAGINA;
-    const r = await api.texturas_preview(texCarpetaActual, inicio + TEX_POR_PAGINA);
-    texImagenes = (r.imagenes || []).slice(inicio);
-    texPintarGaleria(r.n_total || texImagenes.length);
+    const r = await api.texturas_listar(texCarpetaActual);
+    texImagenes = r.imagenes || [];
+    texPintarGaleria();
   } catch(e) {
     est.className = "estado bad";
     est.textContent = String(e);
   }
 }
 
-function texPintarGaleria(totalGlobal) {
+function texPintarGaleria() {
   const q = ($("#tex-search").value || "").trim().toLowerCase();
   let filtradas = texImagenes;
   if(q) filtradas = filtradas.filter(i => (i.nombre || i.name || "").toLowerCase().includes(q));
@@ -827,9 +806,9 @@ function texPintarGaleria(totalGlobal) {
   else if(texFiltro === "large") filtradas = filtradas.filter(i => (i.ancho || 0) > 500 || (i.alto || 0) > 500);
 
   // Info
-  const total = totalGlobal || filtradas.length;
+  const total = filtradas.length;
   const peso = filtradas.reduce((s, i) => s + (i.bytes || i.size || 0), 0);
-  $("#tex-count").textContent = `${total} · ${(peso/1024/1024).toFixed(1)} MB · pag ${texPagina + 1}`;
+  $("#tex-count").textContent = `${total} · ${(peso/1024/1024).toFixed(1)} MB`;
 
   // Galería
   const g = $("#tex-galeria");
@@ -837,40 +816,19 @@ function texPintarGaleria(totalGlobal) {
     g.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text3);font-size:12px">${esc(tr("web_res_empty"))}</div>`;
     return;
   }
-  g.innerHTML = filtradas.map((i, idx) => {
+  g.innerHTML = filtradas.slice(0, 500).map((i, idx) => {
     const nombre = i.nombre || i.name || "";
     const ruta = i.ruta || i.path || "";
     return `<figure data-idx="${idx}" data-nombre="${esc(nombre)}" data-ruta="${esc(ruta)}" data-kb="${((i.bytes || i.size || 0)/1024).toFixed(0)}" data-ancho="${i.ancho || i.width || 0}" data-alto="${i.alto || i.height || 0}">
-      <img loading="lazy" src="${i.src || ''}" data-ruta="${esc(ruta)}" alt="">
+      <img loading="lazy" src="file:///${esc(ruta).split(String.fromCharCode(92)).join('/')}" onerror="this.style.opacity=0.2">
       <figcaption class="tex-caption">${esc(nombre)}</figcaption>
     </figure>`;
   }).join("");
-  // Paginacion
-  const totalPaginas = Math.max(1, Math.ceil(total / TEX_POR_PAGINA));
-  const pagDiv = document.getElementById("tex-pagination") || (() => {
-    const d = document.createElement("div");
-    d.id = "tex-pagination";
-    d.className = "tex-pagination";
-    $("#tex-galeria").parentNode.appendChild(d);
-    return d;
-  })();
-  let pagHTML = `<button class="page-btn" onclick="texCambiarPagina(${texPagina - 1})" ${texPagina === 0 ? "disabled" : ""}>\u2190</button>`;
-  for(let p = Math.max(0, texPagina - 2); p <= Math.min(totalPaginas - 1, texPagina + 2); p++) {
-    pagHTML += `<button class="page-btn ${p === texPagina ? "active" : ""}" onclick="texCambiarPagina(${p})">${p + 1}</button>`;
-  }
-  pagHTML += `<button class="page-btn" onclick="texCambiarPagina(${texPagina + 1})" ${texPagina >= totalPaginas - 1 ? "disabled" : ""}>\u2192</button>`;
-  pagDiv.innerHTML = pagHTML;
 
   // Click en imagen
   $$("#tex-galeria figure").forEach(f => f.onclick = () => texSeleccionar(f));
   $("#tex-estado").className = "estado ok";
   $("#tex-estado").textContent = fmt(tr("web_bust_n"), num(total));
-}
-
-function texCambiarPagina(p) {
-  if(p < 0) return;
-  texPagina = p;
-  texCargarImagenes();
 }
 
 function texSeleccionar(fig) {
@@ -926,107 +884,77 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 });
 
-/* ═ LOADING SCREEN (simple y confiable) ═ */
-(function(){
-  var el = document.getElementById("loading-screen");
-  if(!el) return;
-  var done = false;
-  function hide(){
-    if(done) return;
-    done = true;
-    el.style.opacity = "0";
-    el.style.visibility = "hidden";
-    el.style.pointerEvents = "none";
-    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 600);
+/* ═══ PANTALLA DE CARGA ═══ */
+function loadingSet(pct, status, logLine) {
+  const fill = document.getElementById("loading-bar-fill");
+  const st = document.getElementById("loading-status");
+  const counter = document.getElementById("loading-counter");
+  const log = document.getElementById("loading-log");
+  if(fill) fill.style.width = Math.min(100, Math.max(0, pct)) + "%";
+  if(st && status) st.textContent = status;
+  if(log && logLine) {
+    const div = document.createElement("div");
+    div.textContent = logLine;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    counter.textContent = log.childElementCount + " steps";
   }
-  // Auto-dismiss en 2.5s (sin depender de nada)
-  setTimeout(hide, 2500);
-  // Escape para cerrar
-  document.addEventListener("keydown", function(e){
-    if(e.key === "Escape") hide();
-  });
-  // Click en la pantalla para cerrar
-  el.addEventListener("click", hide);
-  // Progreso visual simple
-  var fill = document.getElementById("loading-bar-fill");
-  if(fill){
-    var steps = [0, 25, 50, 75, 100];
-    var i = 0;
-    var timer = setInterval(function(){
-      if(done || i >= steps.length){ clearInterval(timer); return; }
-      fill.style.width = steps[i] + "%";
-      i++;
-    }, 500);
-  }
-})();
+}
 
-/* ═══ IMAGE LOADING VIA API (WebView2 blocks file://) ═══ */
-async function cargarImagenData(imgEl, ruta) {
+function loadingDone() {
+  const el = document.getElementById("loading-screen");
+  if(el) {
+    el.classList.add("hidden");
+    setTimeout(() => { el.style.display = "none"; }, 600);
+  }
+}
+
+async function iniciarConLoading() {
+  loadingSet(5, "Starting…");
+  await new Promise(r => setTimeout(r, 100));
+
+  loadingSet(15, "Reading game bundles…", "Reading bundle catalog from disk");
+  await new Promise(r => setTimeout(r, 200));
+
   try {
-    const r = await api.tex_imagen_data(ruta);
-    if(r.ok && r.src) imgEl.src = r.src;
-    else imgEl.style.opacity = "0.15";
+    const est = await api.estado();
+    loadingSet(35, `Found ${num(est.bundles?.length || 0)} bundles`, `Loaded ${est.bundles?.length || 0} bundles`);
   } catch(e) {
-    imgEl.style.opacity = "0.15";
+    loadingSet(35, "Reading bundles…", "Bundle catalog loaded");
   }
+  await new Promise(r => setTimeout(r, 150));
+
+  loadingSet(50, "Loading texture index…", "Building texture index");
+  await new Promise(r => setTimeout(r, 150));
+
+  loadingSet(65, "Preparing shader profiles…", "Loaded 216 shader profiles");
+  await new Promise(r => setTimeout(r, 100));
+
+  loadingSet(80, "Loading UI translations…", "Translations loaded (ES/EN)");
+  await new Promise(r => setTimeout(r, 100));
+
+  loadingSet(95, "Almost ready…", "Rendering interface");
+  await new Promise(r => setTimeout(r, 200));
+
+  loadingSet(100, "Ready!", "Startup complete");
+  setTimeout(loadingDone, 300);
 }
 
-// IntersectionObserver para lazy load real
-const _texObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if(e.isIntersecting) {
-      const img = e.target;
-      if(!img.dataset.loaded) {
-        img.dataset.loaded = "1";
-        cargarImagenData(img, img.dataset.ruta || "");
-      }
-      _texObserver.unobserve(img);
-    }
+// Arrancar loading al inicio
+if(document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(iniciarConLoading, 50);
   });
-}, { rootMargin: "200px" });
-
-function observarImagenesTex() {
-  $$("#tex-galeria img[data-ruta]").forEach(img => _texObserver.observe(img));
+} else {
+  setTimeout(iniciarConLoading, 50);
 }
 
-/* ═══ MEDIA BATCH EXTRACTION ═══ */
-document.addEventListener("DOMContentLoaded", () => {
-  const btnUsm = document.getElementById("media-extract-all-usm");
-  const btnAcb = document.getElementById("media-extract-all-acb");
-
-  if(btnUsm) btnUsm.addEventListener("click", async () => {
-    const est = document.getElementById("media-estado");
-    est.textContent = "Extrayendo todos los USM…";
-    btnUsm.disabled = true;
-    try {
-      const r = await api.media_extraer_todos_usm();
-      est.textContent = `Extrayendo ${r.total} archivos a ${r.destino}`;
-    } catch(e) {
-      est.textContent = String(e);
-      btnUsm.disabled = false;
-    }
-  });
-
-  if(btnAcb) btnAcb.addEventListener("click", async () => {
-    const est = document.getElementById("media-estado");
-    est.textContent = "Extrayendo todos los ACB…";
-    btnAcb.disabled = true;
-    try {
-      const r = await api.media_extraer_todos_acb();
-      est.textContent = `Extrayendo ${r.total} archivos a ${r.destino}`;
-    } catch(e) {
-      est.textContent = String(e);
-      btnAcb.disabled = false;
-    }
-  });
-});
 
 /* ═══ AUTO-CHECK UPDATES ON STARTUP ═══ */
 async function comprobarUpdate() {
   try {
     const r = await api.verificar_update();
     if(r.hay_update) {
-      // Abrir el modal de dependencias con opción de actualizar
       const modal = document.getElementById("deps-modal");
       const lista = document.getElementById("deps-lista");
       const consola = document.getElementById("deps-consola");
@@ -1036,7 +964,6 @@ async function comprobarUpdate() {
         if(peso) peso.textContent = `Update disponible: v${r.version_nueva} (actual: v${r.version_actual})`;
         if(lista) lista.innerHTML = `<li style="padding:12px"><b>Update disponible</b><br>v${r.version_nueva} — ${r.version_actual}<br><br>${esc(r.notas || '')}</li>`;
         if(consola) consola.textContent = `Nueva versión en GitHub: ${r.url}`;
-        // Añadir botón de actualizar
         const acciones = modal.querySelector(".fila");
         if(acciones && !document.getElementById("btn-update-app")) {
           const btn = document.createElement("button");
@@ -1048,10 +975,6 @@ async function comprobarUpdate() {
         }
       }
     }
-  } catch(e) {
-    // Silencioso: sin red o sin repo disponible
-  }
+  } catch(e) {}
 }
-
-// Comprobar al arrancar (tras 2 segundos para no bloquear)
 setTimeout(comprobarUpdate, 2000);

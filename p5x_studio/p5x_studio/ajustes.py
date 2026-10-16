@@ -12,7 +12,7 @@ import re
 import sys
 from pathlib import Path
 
-VERSION = "0.0.2-beta"
+VERSION = "0.0.3-beta"
 NOMBRE = "P5X Studio"
 
 # raiz de la herramienta. En modo normal es la carpeta que contiene este paquete; congelada (el .exe)

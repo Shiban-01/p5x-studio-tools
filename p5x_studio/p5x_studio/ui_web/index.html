@@ -65,7 +65,6 @@
     <section class="pantalla activa" id="p-bundles">
       <div class="head">
         <h1 data-t="web_explore_title">Explore the game's bundles</h1>
-        <p data-t="web_explore_sub">Search by name, filter by type, and read what's inside without opening anything.</p>
       </div>
       <div class="search"><span class="mag">⌕</span>
         <input id="q" autocomplete="off" placeholder="part_l_normal, shared_, scn_hougewai…">
@@ -100,14 +99,12 @@
           <button class="btn s" id="d-reveal" data-t="web_d_reveal">Reveal in folder</button>
         </div>
       </section>
-      <p class="note" id="note-bundles" data-t="web_note">—</p>
     </section>
 
     <!-- ================================================= INSPECTOR -->
     <section class="pantalla" id="p-inspector">
       <div class="head">
         <h1 data-t="web_insp_title">Inspect a bundle</h1>
-        <p data-t="web_insp_sub">Open a bundle with the engine and see what resources it holds.</p>
       </div>
       <div class="barra">
         <input type="text" id="insp-path" placeholder="110/shared_....bundle">
@@ -126,14 +123,12 @@
         <button class="btn p" id="insp-export" data-t="web_insp_export">Export selected</button>
         <button class="btn s" id="insp-export-all" data-t="web_insp_export_all">Export all</button>
       </div>
-      <p class="note" data-t="web_note">—</p>
     </section>
 
     <!-- ================================================= BUSCADOR -->
     <section class="pantalla" id="p-resources">
       <div class="head">
         <h1 data-t="web_res_title">Resource search</h1>
-        <p data-t="web_res_sub">Search a mesh or texture by name across the WHOLE game.</p>
       </div>
       <div class="barra">
         <input type="text" id="res-q" placeholder="mesh or texture name…" disabled>
@@ -147,7 +142,6 @@
           <th data-t="web_col_name">Name</th><th data-t="web_col_type">Type</th><th data-t="web_col_bundle">Bundle</th>
         </tr></thead><tbody id="res-body"></tbody>
       </table></div>
-      <p class="note" data-t="web_note">—</p>
     </section>
 
     <!-- ================================================= TEXTURAS -->
@@ -157,7 +151,6 @@
     <section class="pantalla" id="p-media">
       <div class="head">
         <h1 data-t="web_media_title">Video &amp; audio</h1>
-        <p data-t="web_media_sub">The client's videos and music.</p>
       </div>
       <div class="barra">
         <span class="seg">
@@ -246,7 +239,6 @@
     <section class="pantalla" id="p-bustups">
       <div class="head">
         <h1 data-t="web_bust_title">Bust-up viewer</h1>
-        <p data-t="web_bust_sub">—</p>
       </div>
 
       <!-- El visor no necesita el bulk entero: solo los retratos de dialogo. Este extracto saca los
@@ -336,17 +328,15 @@
     <section class="pantalla" id="p-settings">
       <div class="head">
         <h1 data-t="web_settings_title">Settings</h1>
-        <p data-t="web_settings_sub">Customize the app theme, language, and game paths.</p>
       </div>
 
       <!-- Tema -->
       <div class="settings-card">
         <h3 data-t="web_theme_label">Theme</h3>
-        <p class="settings-desc" data-t="web_theme_desc">Choose the color palette for the interface.</p>
         <div class="theme-grid" id="theme-grid">
-          <div class="tdot on" data-t="pink" onclick="setTheme('pink',this)" style="background:#E91E63" title="Pink"></div>
+          <div class="tdot" data-t="pink" onclick="setTheme('pink',this)" style="background:#E91E63" title="Pink"></div>
           <div class="tdot" data-t="white" onclick="setTheme('white',this)" style="background:#78909C" title="White"></div>
-          <div class="tdot" data-t="black" onclick="setTheme('black',this)" style="background:#1A1A2E" title="Black"></div>
+          <div class="tdot on" data-t="black" onclick="setTheme('black',this)" style="background:#1A1A2E" title="Black"></div>
           <div class="tdot" data-t="mint" onclick="setTheme('mint',this)" style="background:#43A047" title="Mint"></div>
           <div class="tdot" data-t="coffee" onclick="setTheme('coffee',this)" style="background:#795548" title="Coffee"></div>
           <div class="tdot" data-t="orange" onclick="setTheme('orange',this)" style="background:#F57C00" title="Orange"></div>
@@ -362,7 +352,6 @@
       <!-- Ruta del juego -->
       <div class="settings-card">
         <h3 data-t="web_settings_game_path">Game installation</h3>
-        <p class="settings-desc" data-t="web_settings_game_desc">The P5X game folder being scanned. If auto-detection fails or you have multiple installations, choose the correct one.</p>
         <div class="barra">
           <input type="text" id="settings-game-path" readonly value="C:\Program Files (x86)\Steam\steamapps\common\P5X">
           <button class="btn s" id="settings-game-choose" data-t="web_settings_choose_game">Choose game folder…</button>
@@ -376,7 +365,6 @@
       <!-- Ruta de texturas -->
       <div class="settings-card">
         <h3 data-t="web_settings_tex_path">Texture extraction folder</h3>
-        <p class="settings-desc" data-t="web_settings_tex_desc">Where extracted portrait textures are stored. Change this if the tool cannot find your textures.</p>
         <div class="barra">
           <input type="text" id="settings-tex-path" readonly value="C:\Users\Lukas\Desktop\P5X Studio Tools\extracted\portraits">
           <button class="btn s" id="settings-tex-choose" data-t="web_settings_choose_tex">Choose folder…</button>
@@ -389,7 +377,6 @@
       <!-- Ruta de salida -->
       <div class="settings-card">
         <h3 data-t="web_settings_out_path">Output folder</h3>
-        <p class="settings-desc" data-t="web_settings_out_desc">Where exported bust-ups and textures are saved.</p>
         <div class="barra">
           <input type="text" id="settings-out-path" readonly value="C:\Users\Lukas\Desktop\P5X Studio Tools\extracted\bustups">
           <button class="btn s" id="settings-out-choose" data-t="web_settings_choose_out">Choose folder…</button>
@@ -402,7 +389,7 @@
         <div class="settings-info">
           <div class="settings-info-row">
             <span data-t="web_settings_version">Version</span>
-            <b>0.0.2-beta</b>
+            <b>0.0.3-beta</b>
           </div>
           <div class="settings-info-row">
             <span data-t="web_settings_bundles">Bundles indexed</span>
