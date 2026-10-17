@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',sans-serif; width:1200px; height:750px; overflow:hidden; display:flex; }
+:root {
+  --bg:#E3F2FD;
+  --sidebar:#BBDEFB;
+  --card:#FFFFFF;
+  --text:#0D47A1;
+  --muted:#5C7FA8;
+  --accent:#1976D2;
+  --accent2:#42A5F5;
+  --border:#90CAF9;
+  --chip:#BBDEFB;
+}
+.sidebar { width:220px; background:var(--sidebar); padding:20px 0; display:flex; flex-direction:column; border-right:2px solid var(--border); }
+.logo { padding:0 20px 20px; border-bottom:1px solid var(--border); }
+.logo b { font-size:20px; color:var(--accent); display:block; }
+.logo span { font-size:12px; color:var(--muted); }
+.nav { flex:1; padding:15px 0; }
+.nav a { display:flex; align-items:center; gap:10px; padding:10px 20px; color:var(--text); text-decoration:none; font-size:14px; border-left:3px solid transparent; }
+.nav a.active { background:var(--accent); color:#fff; border-left-color:#fff; }
+.nav a .badge { background:var(--accent2); color:#fff; font-size:10px; padding:2px 6px; border-radius:8px; margin-left:auto; }
+.main { flex:1; padding:25px 30px; background:var(--bg); }
+h1 { color:var(--accent); font-size:22px; margin-bottom:5px; }
+.sub { color:var(--muted); font-size:13px; margin-bottom:20px; }
+.search { width:100%; padding:10px 15px; border:2px solid var(--border); border-radius:10px; font-size:14px; margin-bottom:15px; background:var(--card); color:var(--text); }
+.chips { display:flex; gap:8px; margin-bottom:15px; flex-wrap:wrap; }
+.chip { padding:5px 12px; background:var(--chip); border:1px solid var(--border); border-radius:15px; font-size:12px; color:var(--text); }
+.chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.results { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.results .header { display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid var(--border); }
+.results .header h2 { font-size:16px; color:var(--text); }
+.row { display:flex; align-items:center; padding:10px 15px; border-bottom:1px solid var(--border); gap:15px; }
+.row:hover { background:var(--chip); }
+.row .name { flex:1; }
+.row .name b { font-size:13px; color:var(--text); display:block; }
+.row .name s { font-size:11px; color:var(--muted); text-decoration:none; }
+.row .k { font-size:12px; color:var(--muted); width:80px; text-align:right; }
+.row .badge { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+</style></head><body>
+<div class="sidebar">
+  <div class="logo"><b>P5X Studio</b><span>Tools v0.0.3</span></div>
+  <div class="nav">
+    <a class="active">📦 Bundles</a>
+    <a>🔍 Inspector</a>
+    <a>🔎 Resources</a>
+    <a>🎬 Video & Audio</a>
+    <a>🖼 Bulk Textures <span class="badge">2.4k</span></a>
+    <a class="active">👤 Bust-ups <span class="badge">266</span></a>
+    <a>⚙ Dependencies</a>
+  </div>
+</div>
+<div class="main">
+  <h1>Character Bust-ups</h1>
+  <div class="sub">View and export character portraits with game shader.</div>
+  
+  <div style="display:flex;gap:20px;height:500px">
+    <div style="width:250px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px;overflow:hidden">
+      <input class="search" placeholder="Search characters..." style="margin-bottom:10px">
+      <div class="row" style="border-left:3px solid var(--accent);background:var(--chip)"><div class="badge"></div><div class="name"><b>Kotone</b><s>qinyin-lianxifu</s></div></div>
+      <div class="row"><div class="badge"></div><div class="name"><b>Wonder</b><s>richang01</s></div></div>
+      <div class="row"><div class="badge"></div><div class="name"><b>Riko</b><s>richang02</s></div></div>
+      <div class="row"><div class="badge"></div><div class="name"><b>Shun</b><s>richang03</s></div></div>
+      <div class="row"><div class="badge"></div><div class="name"><b>Aigis</b><s>p3r-heize</s></div></div>
+      <div class="row"><div class="badge"></div><div class="name"><b>Joker</b><s>richang-joker</s></div></div>
+    </div>
+    <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--chip),var(--bg))">
+        <div style="width:300px;height:400px;background:var(--accent);opacity:0.15;border-radius:10px;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:60px">👤</span>
+        </div>
+      </div>
+      <div style="padding:15px;border-top:1px solid var(--border)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="chip active">Default</div>
+          <div class="chip">Happy</div>
+          <div class="chip">Sad</div>
+          <div class="chip">Angry</div>
+          <div class="chip">Surprised</div>
+          <div class="chip">Thinking</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button style="padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px">Export PNG</button>
+          <button style="padding:8px 16px;background:var(--chip);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:13px">Toggle Shader</button>
+          <button style="padding:8px 16px;background:var(--chip);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:13px">Toggle Tint</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

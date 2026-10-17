@@ -16,6 +16,17 @@
 - **Game Update Detection** — Automatically detect new bundles after game patches
 - **Auto-Update Checker** — Checks GitHub for new tool versions on startup
 
+## Screenshots
+
+| | |
+|:---:|:---:|
+| ![Bundle Explorer](screenshots/mockup_bundles_pink.png) | ![Bust-up Viewer](screenshots/mockup_bustups_black.png) |
+| **Bundle Explorer** (Pink theme) | **Bust-up Viewer** (Black theme) |
+| ![Inspector](screenshots/mockup_inspector_blue.png) | ![Settings](screenshots/mockup_settings_mint.png) |
+| **Bundle Inspector** (Blue theme) | **Settings** (Mint theme) |
+
+*10 color themes available: Pink, Black, Mint, Coffee, Orange, Red, Purple, Blue, Yellow, White*
+
 ## Installation
 
 1. Download the latest `P5X Studio Tools.exe` from [Releases](https://github.com/Shiban-01/p5x-studio-tools/releases)
