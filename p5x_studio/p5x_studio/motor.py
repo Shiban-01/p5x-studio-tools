@@ -342,6 +342,41 @@ def exportar_bundle(ruta_rel: str, tipos: str, destino: str | Path, log=None) ->
     return str(herramientas.exportar_bundle(ruta_rel, tipos, Path(destino), log))
 
 
+def abrir_con_motor(ruta_rel: str, log=None) -> str:
+    """Abre AssetStudio GUI y copia la ruta del bundle al portapapeles."""
+    import subprocess
+    from pathlib import Path as P
+    
+    fichero = herramientas.ruta_bundle_juego(ruta_rel)
+    if not fichero:
+        raise RuntimeError(f"Bundle no encontrado: {ruta_rel}")
+    
+    # Buscar AssetStudio GUI
+    gui = None
+    for base in [
+        ajustes.carpeta_herramientas().parent / "engine" / "AssetStudioGUI" / "AssetStudio.GUI.exe",
+        P(r"C:\Users\Lukas\Desktop\P5X Studio Tools\engine\AssetStudioGUI\AssetStudio.GUI.exe"),
+    ]:
+        if base.exists():
+            gui = str(base)
+            break
+    
+    if not gui:
+        raise RuntimeError("AssetStudio GUI no encontrado en engine/AssetStudioGUI/")
+    
+    # Copiar ruta al portapapeles (solo subprocess, sin ctypes)
+    ruta_abs = str(fichero)
+    try:
+        subprocess.run(["clip"], input=ruta_abs.encode(), capture_output=True, timeout=5)
+    except Exception:
+        pass
+    
+    # Abrir AssetStudio GUI
+    subprocess.Popen([gui])
+    
+    return f"AssetStudio abierto. Ruta copiada al portapapeles: {ruta_abs}"
+
+
 def carpeta_herramientas() -> str:
     return str(ajustes.carpeta_herramientas())
 

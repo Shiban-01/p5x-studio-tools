@@ -128,6 +128,18 @@ function pintarInspector(){
   $("#insp-tabla").hidden = !inspFilas.length;
 }
 
+async function abrirConMotor(ruta){
+  if(!ruta) return;
+  const estado = $("#insp-estado");
+  if(estado){ estado.textContent = "Extracting with AssetStudio..."; estado.className = "estado"; }
+  try {
+    const r = await api.abrir_con_motor(ruta);
+    if(estado){ estado.textContent = r; estado.className = "estado ok"; }
+  } catch(e) {
+    if(estado){ estado.textContent = String(e); estado.className = "estado bad"; }
+  }
+}
+
 async function inspeccionar(ruta){
   if(!ruta) return;
   $("#insp-estado").textContent = tr("web_insp_working"); $("#insp-estado").className = "estado";
@@ -649,10 +661,10 @@ async function iniciar(){
    ["#d-open", async () => { $("#insp-path").value = lastBundle || ""; ir("inspector"); await inspeccionar(lastBundle); }, "click"],
    ["#d-extract", async () => { const r = await api.exportar(lastBundle, "mesh,tex2d"); $("#d-assets").insertAdjacentHTML("afterbegin", `<li><u></u><span class="k" style="text-align:left">${esc(r.error ? fmt(tr("web_error"), r.error) : fmt(tr("web_media_done"), r.destino))}</span></li>`); }, "click"],
    ["#d-reveal", () => api.revelar(lastBundle), "click"],
-   ["#insp-open", () => inspeccionar($("#insp-path").value.trim()), "click"],
+   ["#insp-open", () => abrirConMotor($("#insp-path").value.trim()), "click"],
    ["#insp-choose", async () => { const p = await api.elegir_bundle(); if(p){ $("#insp-path").value = p; inspeccionar(p); } }, "click"],
    ["#insp-export", () => { const tiposRe = new Set(); inspSel.forEach(i => { const tp = inspFilas[i].tipo; tiposRe.add(MAP_TIPO[tp] || tp.toLowerCase()); }); if(tiposRe.size) inspectorExportar([...tiposRe].join(",")); }, "click"],
-   ["#insp-export-all", () => inspectorExportar("mesh,tex2d"), "click"],
+   ["#insp-export-all", () => { const all = new Set(inspFilas.map(r => MAP_TIPO[r.tipo] || r.tipo.toLowerCase())); if(all.size) inspectorExportar([...all].join(",")); }, "click"],
    ["#res-q", buscarRecursos, "input"],
    ["#res-build", async () => { await api.iniciar_indice(); arrancarSondeo(); }, "click"],
    ["#res-cancel", async () => { await api.cancelar_tarea(); }, "click"],

@@ -76,6 +76,9 @@ class Api:
     def abrir(self, ruta):
         return motor.abrir_bundle(ruta)
 
+    def abrir_con_motor(self, ruta):
+        return motor.abrir_con_motor(ruta)
+
     def exportar(self, ruta, tipos):
         try:
             destino = motor.exportar_bundle(ruta, tipos, _salida("bundles"))
