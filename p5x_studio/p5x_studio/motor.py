@@ -157,7 +157,7 @@ def marcar_novedades_vistas() -> int:
 
 def _version_actual() -> str:
     """La version de la app."""
-    return "0.0.3"
+    return ajustes.VERSION
 
 
 def verificar_update() -> dict:
@@ -190,7 +190,7 @@ def abrir_url_update(url: str) -> None:
 
 def _version_actual() -> str:
     """La version de la app."""
-    return "0.0.3"
+    return ajustes.VERSION
 
 
 def verificar_update() -> dict:
@@ -223,7 +223,7 @@ def abrir_url_update(url: str) -> None:
 
 def _version_actual() -> str:
     """La version de la app."""
-    return "0.0.3"
+    return ajustes.VERSION
 
 
 def verificar_update() -> dict:
