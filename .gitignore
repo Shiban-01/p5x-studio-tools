@@ -57,3 +57,7 @@ Thumbs.db
 _dl/il2cpp_out/
 _dl/desensamblado*
 tools/
+
+# Dev tools (not part of the app)
+_dl/
+scripts/
