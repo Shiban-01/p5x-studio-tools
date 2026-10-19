@@ -355,7 +355,6 @@ def abrir_con_motor(ruta_rel: str, log=None) -> str:
     gui = None
     for base in [
         ajustes.carpeta_herramientas().parent / "engine" / "AssetStudioGUI" / "AssetStudio.GUI.exe",
-        P(r"C:\Users\Lukas\Desktop\P5X Studio Tools\engine\AssetStudioGUI\AssetStudio.GUI.exe"),
     ]:
         if base.exists():
             gui = str(base)
@@ -621,6 +620,39 @@ def bustups_exportar(clave: str, expresion: str | None = None, destino: str | Pa
     shutil.copyfile(r["ruta"], final)
     r["destino"] = str(final)
     return r
+
+
+def bustups_exportar_todas(clave: str, destino: str | Path | None = None,
+                           carpeta: str | Path | None = None, shader: bool = True,
+                           sin_tinte: bool = False, log=None) -> dict:
+    """Exporta TODAS las expresiones de un bust-up con shader. Devuelve {hechas, carpeta}."""
+    import shutil
+    from . import bustups
+
+    expresiones = bustups.expresiones(clave, bustups.indice(Path(carpeta) if carpeta else None))
+    if not expresiones:
+        return {"ok": False, "error": f"No expressions for {clave}"}
+
+    d = Path(destino) if destino else carpeta_texturas().parent / "bustups"
+    d.mkdir(parents=True, exist_ok=True)
+
+    hechas = []
+    for exp in expresiones:
+        try:
+            r = bustups.montar(clave, exp, Path(carpeta) if carpeta else None,
+                               shader=shader, sin_tinte=sin_tinte)
+            if r.get("ok"):
+                final = d / Path(r["ruta"]).name
+                shutil.copyfile(r["ruta"], final)
+                hechas.append(exp)
+                if log:
+                    log(f"  {exp}")
+        except Exception as e:
+            if log:
+                log(f"  {exp}: ERROR {e}")
+
+    return {"ok": True, "hechas": hechas, "total": len(expresiones),
+            "carpeta": str(d)}
 
 
 def bustups_texturas(carpeta: str | Path | None = None) -> bool:

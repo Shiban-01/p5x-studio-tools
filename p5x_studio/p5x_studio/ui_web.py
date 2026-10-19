@@ -408,6 +408,15 @@ class Api:
         except Exception as e:  # noqa: BLE001
             return {"ok": False, "destino": "", "error": str(e)}
 
+    def bustups_exportar_todas(self, clave, shader=True, sin_tinte=False):
+        try:
+            r = motor.bustups_exportar_todas(clave, _salida("bustups"),
+                                             self._bust_carpeta, bool(shader),
+                                             sin_tinte=bool(sin_tinte))
+            return r
+        except Exception as e:  # noqa: BLE001
+            return {"ok": False, "error": str(e)}
+
     def bustups_elegir_carpeta(self):
         """Deja elegir donde estan las texturas (por si el bulk se paso en otro sitio)."""
         v = webview.windows[0]
@@ -416,6 +425,57 @@ class Api:
             return None
         self._bust_carpeta = res[0]
         return {"carpeta": res[0], "texturas": motor.bustups_texturas(res[0])}
+
+    # ---------------------------------------------------------------- ajustes / Settings
+    def settings_estado(self):
+        """Estado actual de las rutas: juego, texturas y salida."""
+        juego = ajustes.detectar_juego()
+        return {
+            "juego": str(juego) if juego else "",
+            "juego_encontrado": bool(juego),
+            "texturas": str(ajustes.carpeta_herramientas()),
+            "salida": str(ajustes.carpeta_salida()),
+        }
+
+    def settings_elegir_juego(self):
+        """Abre el dialogo para elegir la carpeta del juego y la guarda en config."""
+        v = webview.windows[0]
+        res = v.create_file_dialog(webview.FOLDER_DIALOG)
+        if not res:
+            return None
+        ruta, sub = ajustes.resolver_carpeta_juego(Path(res[0]))
+        if not ruta:
+            return {"ok": False, "error": "no es una carpeta del juego (falta Bundles)"}
+        ajustes.guardar_config(carpeta_juego=str(ruta))
+        return {"ok": True, "juego": str(ruta), "bundles": str(sub) if sub else ""}
+
+    def settings_detectar_juego(self):
+        """Auto-detecta la carpeta del juego y la guarda si la encuentra."""
+        juego = ajustes.detectar_juego()
+        if not juego:
+            return {"ok": False, "error": "no se encontro el juego en las rutas conocidas"}
+        ajustes.guardar_config(carpeta_juego=str(juego))
+        return {"ok": True, "juego": str(juego)}
+
+    def settings_elegir_texturas(self):
+        """Carpeta donde se extraen las texturas."""
+        v = webview.windows[0]
+        res = v.create_file_dialog(webview.FOLDER_DIALOG,
+                                   directory=str(ajustes.carpeta_herramientas()))
+        if not res:
+            return None
+        ajustes.guardar_config(carpeta_herramientas=res[0])
+        return {"ok": True, "texturas": res[0]}
+
+    def settings_elegir_salida(self):
+        """Carpeta de salida de modelos."""
+        v = webview.windows[0]
+        res = v.create_file_dialog(webview.FOLDER_DIALOG,
+                                   directory=str(ajustes.carpeta_salida()))
+        if not res:
+            return None
+        ajustes.guardar_config(carpeta_salida=res[0])
+        return {"ok": True, "salida": res[0]}
 
     def revelar_fichero(self, ruta):
         """Ensenar un fichero concreto en el explorador (el PNG exportado)."""

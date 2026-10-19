@@ -313,6 +313,7 @@
             <div class="action-row">
               <button class="btn s" id="bust-revelar" data-t="web_bust_reveal">Show in folder</button>
               <button class="btn p" id="bust-exportar" data-t="web_bust_export">Export PNG</button>
+              <button class="btn s" id="bust-exportar-todas">All expressions</button>
             </div>
 
             <div class="estado" id="bust-info"></div>
@@ -353,12 +354,12 @@
       <div class="settings-card">
         <h3 data-t="web_settings_game_path">Game installation</h3>
         <div class="barra">
-          <input type="text" id="settings-game-path" readonly value="C:\Program Files (x86)\Steam\steamapps\common\P5X">
+          <input type="text" id="settings-game-path" readonly value="">
           <button class="btn s" id="settings-game-choose" data-t="web_settings_choose_game">Choose game folder…</button>
           <button class="btn s" id="settings-game-detect" data-t="web_settings_detect">Auto-detect</button>
         </div>
         <div class="estado" id="settings-game-status">
-          <span style="color:var(--green)">●</span> <span data-t="web_settings_game_ok">Game detected — Steam (Global)</span>
+          <span style="color:var(--muted)">●</span> <span data-t="web_settings_game_unknown">—</span>
         </div>
       </div>
 
@@ -366,11 +367,11 @@
       <div class="settings-card">
         <h3 data-t="web_settings_tex_path">Texture extraction folder</h3>
         <div class="barra">
-          <input type="text" id="settings-tex-path" readonly value="C:\Users\Lukas\Desktop\P5X Studio Tools\extracted\portraits">
+          <input type="text" id="settings-tex-path" readonly value="">
           <button class="btn s" id="settings-tex-choose" data-t="web_settings_choose_tex">Choose folder…</button>
         </div>
         <div class="estado" id="settings-tex-status">
-          <span style="color:var(--green)">●</span> <span data-t="web_settings_tex_ok">3,258 sprites found</span>
+          <span style="color:var(--muted)">●</span> <span data-t="web_settings_tex_unknown">—</span>
         </div>
       </div>
 
@@ -378,7 +379,7 @@
       <div class="settings-card">
         <h3 data-t="web_settings_out_path">Output folder</h3>
         <div class="barra">
-          <input type="text" id="settings-out-path" readonly value="C:\Users\Lukas\Desktop\P5X Studio Tools\extracted\bustups">
+          <input type="text" id="settings-out-path" readonly value="">
           <button class="btn s" id="settings-out-choose" data-t="web_settings_choose_out">Choose folder…</button>
         </div>
       </div>
@@ -389,7 +390,7 @@
         <div class="settings-info">
           <div class="settings-info-row">
             <span data-t="web_settings_version">Version</span>
-            <b>0.0.3-beta</b>
+            <b>0.0.4-beta</b>
           </div>
           <div class="settings-info-row">
             <span data-t="web_settings_bundles">Bundles indexed</span>

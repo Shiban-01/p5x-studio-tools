@@ -631,6 +631,23 @@ async function exportarBustup(){
   if(r.ok) $("#bust-revelar").dataset.ruta = r.destino;
 }
 
+async function exportarBustupTodas(){
+  if(!bustSel) return;
+  const btn = $("#bust-exportar-todas");
+  if(btn){ btn.disabled = true; btn.textContent = "Exporting..."; }
+  $("#bust-info").className = "estado";
+  $("#bust-info").textContent = "Exporting all expressions with shader...";
+  const r = await api.bustups_exportar_todas(bustSel, !!$("#bust-shader").checked, !$("#bust-tinte").checked);
+  if(btn){ btn.disabled = false; btn.textContent = "All expressions"; }
+  if(r.ok){
+    $("#bust-info").className = "estado ok";
+    $("#bust-info").textContent = `${r.hechas.length}/${r.total} expressions exported to ${r.carpeta}`;
+  } else {
+    $("#bust-info").className = "estado bad";
+    $("#bust-info").textContent = r.error || "Export failed";
+  }
+}
+
 /* ------------------------------------------------------------------ arranque */
 async function iniciar(){
   const tx = await api.textos();
@@ -701,6 +718,7 @@ async function iniciar(){
       ["#bust-shader", () => { if(bustSel) verBustup(bustSel); }, "change"],
    ["#bust-tinte", () => { if(bustSel) verBustup(bustSel); }, "change"],
    ["#bust-exportar", exportarBustup, "click"],
+   ["#bust-exportar-todas", exportarBustupTodas, "click"],
    ["#bust-revelar", () => { const r = $("#bust-revelar").dataset.ruta; if(r) api.revelar_fichero(r); }, "click"],
    ["#bust-carpeta", async () => {
       const r = await api.bustups_elegir_carpeta();
@@ -709,8 +727,45 @@ async function iniciar(){
       $("#bust-estado").className = "estado " + (r.texturas ? "ok" : "warn");
       $("#bust-estado").textContent = r.texturas ? r.carpeta : tr("web_bust_none");
       await abrirBustups();
+    }, "click"],
+   // ------------------------------------------------------------------ Settings
+   ["#settings-game-choose", async () => {
+      const r = await api.settings_elegir_juego();
+      const el = $("#settings-game-status"), inp = $("#settings-game-path");
+      if(!r) return;
+      if(r.ok){ if(el){ el.style.color = "var(--green)"; el.textContent = "✓ " + r.juego; } if(inp) inp.value = r.juego; }
+      else { if(el){ el.style.color = "var(--red)"; el.textContent = "✗ " + (r.error || "error"); } }
+    }, "click"],
+   ["#settings-game-detect", async () => {
+      const r = await api.settings_detectar_juego();
+      const el = $("#settings-game-status"), inp = $("#settings-game-path");
+      if(!r) return;
+      if(r.ok){ if(el){ el.style.color = "var(--green)"; el.textContent = "✓ " + r.juego; } if(inp) inp.value = r.juego; }
+      else { if(el){ el.style.color = "var(--red)"; el.textContent = "✗ " + (r.error || "error"); } }
+    }, "click"],
+   ["#settings-tex-choose", async () => {
+      const r = await api.settings_elegir_texturas();
+      const el = $("#settings-tex-status"), inp = $("#settings-tex-path");
+      if(r && r.ok){ if(el){ el.style.color = "var(--green)"; el.textContent = "✓ " + r.texturas; } if(inp) inp.value = r.texturas; }
+    }, "click"],
+   ["#settings-out-choose", async () => {
+      const r = await api.settings_elegir_salida();
+      const inp = $("#settings-out-path");
+      if(r && r.ok && inp) inp.value = r.salida;
     }, "click"]
   ].forEach(([sel_, fn, ev]) => { const el = $(sel_); if(el) el.addEventListener(ev, fn); });
+
+  // cargar estado de Settings al abrir
+  api.settings_estado().then(s => {
+    const g = $("#settings-game-status"), t = $("#settings-tex-status"), o = $("#settings-out-status");
+    const gp = $("#settings-game-path"), tp = $("#settings-tex-path"), op = $("#settings-out-path");
+    if(g){ g.style.color = s.juego_encontrado ? "var(--green)" : "var(--red)"; g.textContent = s.juego_encontrado ? "✓ " + s.juego : "✗ not found"; }
+    if(gp) gp.value = s.juego || "";
+    if(tp) tp.value = s.texturas || "";
+    if(op) op.value = s.salida || "";
+    if(t){ t.textContent = s.texturas; }
+    if(o){ o.textContent = s.salida; }
+  }).catch(()=>{});
 
   // cerrar la ventana de dependencias con Escape (y no dejar el fondo clickeable)
   $("#deps-modal").addEventListener("click", e => { if(e.target.id === "deps-modal") $("#deps-modal").hidden = true; });
