@@ -165,79 +165,25 @@ def verificar_update() -> dict:
     import urllib.request, json as _json
     try:
         req = urllib.request.Request(
-            "https://api.github.com/repos/Shiban-01/p5x-studio-tools/releases/latest",
+            "https://api.github.com/repos/Shiban-01/p5x-studio-tools/releases",
             headers={"User-Agent": "P5X-Studio-Tools"})
         with urllib.request.urlopen(req, timeout=8) as resp:
             data = _json.loads(resp.read())
-        tag = (data.get("tag_name") or "").lstrip("v")
-        url = data.get("html_url") or ""
-        notas = (data.get("body") or "")[:500]
-        actual = _version_actual()
-        hay = tag != actual and tag != ""
-        return {"hay_update": hay, "version_actual": actual, "version_nueva": tag,
-                "url": url, "notas": notas}
-    except Exception as e:
-        return {"hay_update": False, "version_actual": _version_actual(),
-                "version_nueva": "", "url": "", "error": str(e)}
-
-
-def abrir_url_update(url: str) -> None:
-    """Abre la URL del update en el navegador por defecto."""
-    import webbrowser
-    if url:
-        webbrowser.open(url)
-
-
-def _version_actual() -> str:
-    """La version de la app."""
-    return ajustes.VERSION
-
-
-def verificar_update() -> dict:
-    """Comprueba si hay una version mas nueva en GitHub. Devuelve {'hay_update': bool, ...}."""
-    import urllib.request, json as _json
-    try:
-        req = urllib.request.Request(
-            "https://api.github.com/repos/Shiban-01/p5x-studio-tools/releases/latest",
-            headers={"User-Agent": "P5X-Studio-Tools"})
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            data = _json.loads(resp.read())
-        tag = (data.get("tag_name") or "").lstrip("v")
-        url = data.get("html_url") or ""
-        notas = (data.get("body") or "")[:500]
-        actual = _version_actual()
-        hay = tag != actual and tag != ""
-        return {"hay_update": hay, "version_actual": actual, "version_nueva": tag,
-                "url": url, "notas": notas}
-    except Exception as e:
-        return {"hay_update": False, "version_actual": _version_actual(),
-                "version_nueva": "", "url": "", "error": str(e)}
-
-
-def abrir_url_update(url: str) -> None:
-    """Abre la URL del update en el navegador por defecto."""
-    import webbrowser
-    if url:
-        webbrowser.open(url)
-
-
-def _version_actual() -> str:
-    """La version de la app."""
-    return ajustes.VERSION
-
-
-def verificar_update() -> dict:
-    """Comprueba si hay una version mas nueva en GitHub. Devuelve {'hay_update': bool, ...}."""
-    import urllib.request, json as _json
-    try:
-        req = urllib.request.Request(
-            "https://api.github.com/repos/Shiban-01/p5x-studio-tools/releases/latest",
-            headers={"User-Agent": "P5X-Studio-Tools"})
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            data = _json.loads(resp.read())
-        tag = (data.get("tag_name") or "").lstrip("v")
-        url = data.get("html_url") or ""
-        notas = (data.get("body") or "")[:500]
+        # tomar el primer release no-draft y no-prerelease (o el primero si todos son prerelease)
+        rel = None
+        for r in (data if isinstance(data, list) else []):
+            if not r.get("draft"):
+                if not r.get("prerelease"):
+                    rel = r
+                    break
+                if rel is None:
+                    rel = r
+        if not rel:
+            return {"hay_update": False, "version_actual": _version_actual(),
+                    "version_nueva": "", "url": "", "error": "no releases found"}
+        tag = (rel.get("tag_name") or "").lstrip("v")
+        url = rel.get("html_url") or ""
+        notas = (rel.get("body") or "")[:500]
         actual = _version_actual()
         hay = tag != actual and tag != ""
         return {"hay_update": hay, "version_actual": actual, "version_nueva": tag,
